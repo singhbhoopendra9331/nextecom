@@ -1,15 +1,51 @@
+/** Reusable environment-based logger */
 
-/** todo: create re-usable logger functions, better logging, based on environment */
+const isDev = process.env.NODE_ENV === "development";
 
-export const logger = {
-  log: (message: string, ...args: any[]) => {
-    if (process.env.NODE_ENV === "development") {
-      console.log(`[LOG] ${message}`, ...args);
-    }
-  },
-  error: (message: string, ...args: any[]) => {
-    if (process.env.NODE_ENV === "development") {
-      console.error(`[ERROR] ${message}`, ...args);
+const formatData = (data: any) => {
+  if (data instanceof Error) {
+    return {
+      message: data.message,
+      stack: data.stack,
+    };
+  }
+
+  if (typeof data === "object") {
+    try {
+      return JSON.stringify(data, null, 2);
+    } catch {
+      return data;
     }
   }
+
+  return data;
+};
+
+export const logger = {
+  log: (...args: any[]) => {
+    if (!isDev) return;
+
+    console.log(
+      "[LOG]",
+      ...args.map(formatData)
+    );
+  },
+
+  error: (...args: any[]) => {
+    if (!isDev) return;
+
+    console.error(
+      "[ERROR]",
+      ...args.map(formatData)
+    );
+  },
+
+  warn: (...args: any[]) => {
+    if (!isDev) return;
+
+    console.warn(
+      "[WARN]",
+      ...args.map(formatData)
+    );
+  },
 };

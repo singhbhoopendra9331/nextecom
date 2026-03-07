@@ -16,7 +16,7 @@ export async function GET() {
         categories: { select: { id: true, name: true } },
       },
     });
-    return NextResponse.json(posts);
+    return NextResponse.json({ docs: posts });
   } catch (error: unknown) {
     console.error("GET /api/posts:", error);
     const message =

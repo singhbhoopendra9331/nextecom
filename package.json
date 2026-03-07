@@ -13,6 +13,9 @@
     "@hookform/resolvers": "^5.2.2",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
+    "@tanstack/react-query": "^5.90.21",
+    "axios": "^1.13.6",
+    "busboy": "^1.6.0",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
@@ -40,6 +43,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/busboy": "^1.5.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

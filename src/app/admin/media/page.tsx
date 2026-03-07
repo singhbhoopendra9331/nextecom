@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import Link from "next/link"; 
+import Link from "next/link";
+import MediaPageClient from "./page.client";
 import { axios } from "@/lib/axios";
 
 async function getMedia() {
@@ -13,19 +14,19 @@ async function getMedia() {
 }
 
 export default async function Page() {
-  // const initialData = await getMedia();
+  const initialData = await getMedia();
   // console.log("initialData", initialData);
 
   return (
     <div className="min-h-screen p-2 md:p-4 space-y-6">
       <h1 className="font-semibold text-2xl flex items-center gap-4">
-        Posts
+        Media
         <Button variant="outline" asChild>
-          <Link href="/admin/posts/create">Add Post</Link>
+          <Link href="/admin/media/create">Add Media</Link>
         </Button>
       </h1>
 
-      {/* <MediaPageClient initialData={initialData} /> */}
+      <MediaPageClient initialData={initialData} />
     </div>
   );
 }
