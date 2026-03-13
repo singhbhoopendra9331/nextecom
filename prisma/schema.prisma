@@ -40,6 +40,14 @@ model Media {
   width  Int?
   height Int?
 
+  // SEO / CMS fields
+  alt     String?
+  caption String?
+
+  // Optional UX improvements
+  blurhash      String?
+  dominantColor String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -67,6 +75,8 @@ model Post {
   featuredImage   Media?  @relation(fields: [featuredImageId], references: [id])
   featuredImageId String?
 
+  status PostStatus @default(DRAFT)
+
   meta      Meta[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -91,4 +101,10 @@ model Meta {
 
   post   Post   @relation(fields: [postId], references: [id])
   postId String
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
