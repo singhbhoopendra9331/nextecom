@@ -1,31 +1,62 @@
-export const runtime = "nodejs";
-
+import { prisma } from "@/lib/prisma"; 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma/client";
 
-export async function GET() {
-  try {
-    const posts = await prisma.post.findMany({
-      orderBy: { updatedAt: "desc" },
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+
+  const page = Number(searchParams.get("page") || 1);
+  const limit = Number(searchParams.get("limit") || 20);
+  const search = searchParams.get("search") || "";
+
+  const skip = (page - 1) * limit;
+
+  const where: Prisma.PostWhereInput = search
+    ? {
+        OR: [
+          {
+            title: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            slug: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        ],
+      }
+    : {};
+
+  const [docs, total] = await Promise.all([
+    prisma.post.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: "desc" },
       include: {
         author: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true },
         },
         featuredImage: true,
-        tags: { select: { id: true, name: true } },
-        categories: { select: { id: true, name: true } },
+        tags: true,
+        categories: true,
       },
-    });
-    return NextResponse.json({ docs: posts });
-  } catch (error: unknown) {
-    console.error("GET /api/posts:", error);
-    const message =
-      error && typeof error === "object" && "code" in error
-        ? `Database error: ${(error as { code: string }).code}. Check DATABASE_URL and that the database exists.`
-        : "Failed to fetch posts";
-    return NextResponse.json(
-      { error: message },
-      { status: 500 }
-    );
-  }
+    }),
+    prisma.post.count({ where }),
+  ]);
+
+  const pages = Math.ceil(total / limit);
+
+  return NextResponse.json({
+    docs,
+    pagination: {
+      page,
+      limit,
+      total,
+      pages,
+    },
+  });
 }

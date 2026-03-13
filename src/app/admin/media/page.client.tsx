@@ -2,19 +2,16 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
+
 import { axios } from "@/lib/axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, Copy, Trash, RefreshCcw } from "lucide-react";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { toast } from "sonner";
+import { AppSheet } from "@/components/app-sheet";
+import { Pagination } from "@/components/pagination";
 
 export default function MediaPageClient({ initialData }: any) {
   const [data, setData] = useState(initialData);
@@ -123,120 +120,102 @@ export default function MediaPageClient({ initialData }: any) {
       </div>
 
       {/* PAGINATION */}
-      <div className="flex gap-2 items-center">
-        <button
-          disabled={data.pagination.page === 1}
-          onClick={() => changePage(data.pagination.page - 1)}
-        >
-          Prev
-        </button>
-
-        <span>
-          {data.pagination.page} / {data.pagination.pages}
-        </span>
-
-        <button
-          disabled={data.pagination.page === data.pagination.pages}
-          onClick={() => changePage(data.pagination.page + 1)}
-        >
-          Next
-        </button>
-      </div>
+      <Pagination
+        pagination={data.pagination}
+        onPageChange={changePage}
+      />
 
       {/* RIGHT SIDE SHEET */}
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-120 sm:w-125">
-          {selectedMedia && (
-            <>
-              <SheetHeader className="border-b">
-                <SheetTitle>Media Details</SheetTitle>
-              </SheetHeader>
+      <AppSheet
+        open={open}
+        onOpenChange={setOpen}
+        title="Media Details"
+        width="w-[520px]"
+      >
+        {selectedMedia && (
+          <div className="space-y-6 px-4">
 
-              <div className="space-y-6 px-4">
+            <Image
+              src={selectedMedia.url}
+              alt={selectedMedia.originalName}
+              width={400}
+              height={300}
+              className="rounded-md w-full"
+            />
 
-                <Image
-                  src={selectedMedia.url}
-                  alt={selectedMedia.originalName}
-                  width={400}
-                  height={300}
-                  className="rounded-md w-full"
-                />
+            {/* ACTION BUTTONS */}
+            <div className="flex gap-2 flex-wrap">
 
-                {/* ACTION BUTTONS */}
-                <div className="flex gap-2 flex-wrap">
+              <Button size="sm" variant="outline" onClick={copyUrl}>
+                <Copy className="w-4 h-4 mr-2" />
+                Copy URL
+              </Button>
 
-                  <Button size="sm" variant="outline" onClick={copyUrl}>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy URL
-                  </Button>
+              <Button size="sm" variant="outline" onClick={downloadMedia}>
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
 
-                  <Button size="sm" variant="outline" onClick={downloadMedia}>
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
-
-                  <Button size="sm" variant="outline" asChild>
-                    <label className="cursor-pointer">
-                      <RefreshCcw className="w-4 h-4 mr-2" />
-                      Replace
-                      <input
-                        type="file"
-                        hidden
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) {
-                            replaceMedia(e.target.files[0]);
-                          }
-                        }}
-                      />
-                    </label>
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={deleteMedia}
-                  >
-                    <Trash className="w-4 h-4 mr-2" />
-                    Delete
-                  </Button>
-
-                </div>
-
-                {/* FILE INFO */}
-                <div className="space-y-1 text-sm">
-                  <p><strong>Name:</strong> {selectedMedia.originalName}</p>
-                  <p><strong>Type:</strong> {selectedMedia.mimeType}</p>
-                  <p><strong>Size:</strong> {selectedMedia.size}</p>
-                  <p><strong>ID:</strong> {selectedMedia.id}</p>
-                </div>
-
-                {/* ALT TEXT */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Alt Text</label>
-                  <Input
-                    value={altText || selectedMedia.alt || ""}
-                    onChange={(e) => setAltText(e.target.value)}
+              <Button size="sm" variant="outline" asChild>
+                <label className="cursor-pointer">
+                  <RefreshCcw className="w-4 h-4 mr-2" />
+                  Replace
+                  <input
+                    type="file"
+                    hidden
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        replaceMedia(e.target.files[0]);
+                      }
+                    }}
                   />
-                </div>
+                </label>
+              </Button>
 
-                {/* CAPTION */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Caption</label>
-                  <Input 
-                    value={caption || selectedMedia.caption || ""}
-                    onChange={(e) => setCaption(e.target.value)}
-                  />
-                </div>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={deleteMedia}
+              >
+                <Trash className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
 
-                <Button onClick={saveMetadata} className="w-full">
-                  Save Changes
-                </Button>
+            </div>
 
-              </div>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
+            {/* FILE INFO */}
+            <div className="space-y-1 text-sm">
+              <p><strong>Name:</strong> {selectedMedia.originalName}</p>
+              <p><strong>Type:</strong> {selectedMedia.mimeType}</p>
+              <p><strong>Size:</strong> {selectedMedia.size}</p>
+              <p><strong>ID:</strong> {selectedMedia.id}</p>
+            </div>
+
+            {/* ALT */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Alt Text</label>
+              <Input
+                value={altText || selectedMedia.alt || ""}
+                onChange={(e) => setAltText(e.target.value)}
+              />
+            </div>
+
+            {/* CAPTION */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Caption</label>
+              <Input
+                value={caption || selectedMedia.caption || ""}
+                onChange={(e) => setCaption(e.target.value)}
+              />
+            </div>
+
+            <Button onClick={saveMetadata} className="w-full">
+              Save Changes
+            </Button>
+
+          </div>
+        )}
+      </AppSheet>
     </div>
   );
 }
