@@ -5,14 +5,17 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 
-export default function Editor() {
+export default function Editor({ onChange }: { onChange: (value: any) => void }) {
   const editor = useCreateBlockNote();
 
   return (
-    <BlockNoteView 
+    <BlockNoteView
       editor={editor}
       theme="light"
-      className="w-full h-full min-h-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
+      onChange={() => {
+        onChange(editor.document);
+      }}
+      className="w-full min-h-32 border border-gray-300 rounded px-3 py-2"
     />
   );
 }
