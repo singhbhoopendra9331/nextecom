@@ -1,20 +1,12 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link"; 
 import { axios } from "@/lib/axios";
-
-async function getMedia() {
-  const res = await axios.get(
-    `/api/media?page=1&limit=20`
-  );
-
-  if (!res.data) throw new Error("Failed to fetch media");
-
-  return res.data;
-}
+import PostPageClient from "./page.client";
 
 export default async function Page() {
-  // const initialData = await getMedia();
-  // console.log("initialData", initialData);
+  const posts = await axios.get("/api/posts");
+  if (!posts.data) throw new Error("Failed to fetch posts");
+  console.log("posts >>", posts.data);
 
   return (
     <div className="min-h-screen p-2 md:p-4 space-y-6">
@@ -25,7 +17,7 @@ export default async function Page() {
         </Button>
       </h1>
 
-      {/* <MediaPageClient initialData={initialData} /> */}
+      <PostPageClient initialData={posts.data} />   
     </div>
   );
 }

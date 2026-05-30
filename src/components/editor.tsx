@@ -14,8 +14,18 @@ function useIsClient() {
   );
 }
 
-function EditorInner({ onChange }: { onChange: (value: unknown) => void }) {
-  const editor = useCreateBlockNote();
+function EditorInner({
+  onChange,
+  initialContent,
+}: {
+  onChange: (value: unknown) => void;
+  initialContent?: unknown;
+}) {
+  const editor = useCreateBlockNote(
+    initialContent
+      ? { initialContent: initialContent as never }
+      : undefined
+  );
 
   return (
     <BlockNoteView
@@ -31,8 +41,10 @@ function EditorInner({ onChange }: { onChange: (value: unknown) => void }) {
 
 export default function Editor({
   onChange,
+  initialContent,
 }: {
   onChange: (value: unknown) => void;
+  initialContent?: unknown;
 }) {
   const isClient = useIsClient();
 
@@ -42,5 +54,5 @@ export default function Editor({
     );
   }
 
-  return <EditorInner onChange={onChange} />;
+  return <EditorInner onChange={onChange} initialContent={initialContent} />;
 }
