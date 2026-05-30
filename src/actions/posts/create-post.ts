@@ -52,7 +52,7 @@ export async function createPost(data: Input) {
       },
     });
 
-    revalidatePath("/dashboard/posts");
+    revalidatePath("/admin/posts");
 
     return {
       success: true,
