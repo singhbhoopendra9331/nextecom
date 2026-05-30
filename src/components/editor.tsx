@@ -14,6 +14,14 @@ function useIsClient() {
   );
 }
 
+function normalizeInitialContent(content: unknown): unknown[] | undefined {
+  if (!Array.isArray(content) || content.length === 0) {
+    return undefined;
+  }
+
+  return content;
+}
+
 function EditorInner({
   onChange,
   initialContent,
@@ -21,10 +29,9 @@ function EditorInner({
   onChange: (value: unknown) => void;
   initialContent?: unknown;
 }) {
+  const blocks = normalizeInitialContent(initialContent);
   const editor = useCreateBlockNote(
-    initialContent
-      ? { initialContent: initialContent as never }
-      : undefined
+    blocks ? { initialContent: blocks as never } : undefined
   );
 
   return (

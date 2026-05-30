@@ -37,7 +37,7 @@ export async function updatePost(id: string, data: Input) {
       data: {
         title: data.title,
         slug,
-        content: (data.content ?? {}) as object,
+        content: Array.isArray(data.content) ? data.content : [],
         authorId: data.authorId,
         featuredImageId: data.featuredImageId ?? null,
         tags: data.tags

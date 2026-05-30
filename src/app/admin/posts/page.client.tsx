@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Post } from "@/generated/prisma/client";
 import { toast } from "@/lib/toast";
+import Image from "next/image";
 
 type PostRow = Post & {
   slug: string;
@@ -122,7 +123,7 @@ const PostClient = ({
     {
       id: "featuredImage",
       header: "Featured Image",
-      cell: (row) => row.featuredImage?.url ?? "—",
+      cell: (row) => <Image src={row.featuredImage?.url ?? ""} alt={row.title} width={100} height={100} /> ?? "—",
     },
     {
       id: "tags",

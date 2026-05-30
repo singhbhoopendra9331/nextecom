@@ -28,7 +28,7 @@ export async function createPost(data: Input) {
       data: {
         title: data.title,
         slug,
-        content: data.content ?? {},
+        content: Array.isArray(data.content) ? data.content : [],
         authorId: data.authorId,
 
         featuredImageId: data.featuredImageId ?? null,
