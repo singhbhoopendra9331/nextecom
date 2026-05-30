@@ -3,8 +3,13 @@ import { DataTable, DataTableColumn } from "@/components/data-table";
 import { User } from "@/generated/prisma/client";
 
 const columns: DataTableColumn<User>[] = [
-    { id: "name", header: "Name" },
-    { id: "email", header: "Email" },
+    {
+        id: "name",
+        header: "Name",
+        accessorKey: "name",
+        cell: (row) => row.name ?? "—",
+    },
+    { id: "email", header: "Email", accessorKey: "email" },
     { id: "actions", header: "Actions" },
 ];
 
@@ -13,10 +18,13 @@ const UsersPageClient = ({
 }: {
     users: User[];
 }) => {
-    console.log("client users >>>", users);
-    return <div>
-        <DataTable columns={columns} data={users} />
-    </div>;
+    return (
+        <DataTable
+            columns={columns}
+            data={users}
+            getRowKey={(row) => row.id}
+        />
+    );
 };
 
 export default UsersPageClient;
