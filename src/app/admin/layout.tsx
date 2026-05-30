@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/sidebar";
 
 import "../globals.css";
+import { AppToaster } from "@/components/app-toaster";
 import { AdminBreadScrumb } from "@/components/breadcrumb";
-import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,14 +53,14 @@ export default function RootLayout({
                 </div>
               </header>
               <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-                <div className="min-h-[100vh] flex-1 bg-muted/50 md:min-h-min">
+                <div className="min-h-screen flex-1 bg-muted/50 md:min-h-min ">
                   {children}
                 </div>
               </div>
             </SidebarInset>
           </SidebarProvider>
 
-          <Toaster position="top-left"/>
+          <AppToaster />
         </TooltipProvider>
       </body>
     </html>

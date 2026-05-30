@@ -7,28 +7,29 @@ import { revalidatePath } from "next/cache";
 type Input = {
   email: string;
   name?: string;
-  password: string;
+  password?: string;
 };
 
-export async function createUser(data: Input) {
+export async function updateUser(id: string, data: Input) {
   try {
+    if (!id) {
+      throw new Error("User id is required");
+    }
+
     if (!data.email?.trim()) {
       throw new Error("Email is required");
     }
 
-    if (!data.password) {
-      throw new Error("Password is required");
-    }
-
-    if (data.password.length < 8) {
+    if (data.password && data.password.length < 8) {
       throw new Error("Password must be at least 8 characters");
     }
 
-    const user = await prisma.user.create({
+    const user = await prisma.user.update({
+      where: { id },
       data: {
         email: data.email.trim(),
         name: data.name?.trim() || null,
-        password: hashPassword(data.password),
+        ...(data.password ? { password: hashPassword(data.password) } : {}),
       },
       select: {
         id: true,
@@ -39,13 +40,14 @@ export async function createUser(data: Input) {
     });
 
     revalidatePath("/admin/users");
+    revalidatePath(`/admin/users/${id}`);
 
     return {
       success: true,
       data: user,
     };
   } catch (error: unknown) {
-    console.error("createUser", error);
+    console.error("updateUser", error);
 
     if (
       error &&
@@ -61,8 +63,7 @@ export async function createUser(data: Input) {
 
     return {
       success: false,
-      error:
-        error instanceof Error ? error.message : "Failed to create user",
+      error: error instanceof Error ? error.message : "Failed to update user",
     };
   }
 }

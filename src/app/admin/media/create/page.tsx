@@ -3,6 +3,7 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { axios } from "@/lib/axios";
+import { toast } from "@/lib/toast";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -32,9 +33,11 @@ export default function UploadMediaPage() {
       });
 
       setUploaded(response.data);
+      toast.success("Media uploaded successfully");
       reset();
     } catch (error) {
       console.error("Upload failed:", error);
+      toast.error("Failed to upload media");
     } finally {
       setLoading(false);
     }

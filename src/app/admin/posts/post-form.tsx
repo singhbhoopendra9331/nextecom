@@ -12,6 +12,7 @@ import { AppSelect, type SelectOption } from "@/components/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { axios } from "@/lib/axios";
+import { toast } from "@/lib/toast";
 
 type Author = {
   id: string;
@@ -81,7 +82,7 @@ export default function PostForm({
 
   async function handleSubmit() {
     if (!authorId) {
-      alert("Please select an author");
+      toast.error("Please select an author");
       return;
     }
 
@@ -102,11 +103,14 @@ export default function PostForm({
     setIsSubmitting(false);
 
     if (res.success) {
+      toast.success(
+        mode === "create" ? "Post created successfully" : "Post updated successfully"
+      );
       router.push("/admin/posts");
       return;
     }
 
-    alert(res.error);
+    toast.error(res.error ?? "Something went wrong");
   }
 
   return (

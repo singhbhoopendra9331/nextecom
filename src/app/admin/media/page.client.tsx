@@ -2,9 +2,8 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { toast } from "sonner";
-
 import { axios } from "@/lib/axios";
+import { toast } from "@/lib/toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,28 +60,40 @@ export default function MediaPageClient({ initialData }: any) {
   const deleteMedia = async () => {
     if (!confirm("Delete this media?")) return;
 
-    await axios.delete(`/api/media/${selectedMedia.id}`);
-
-    setOpen(false);
-    fetchMedia(data.pagination.page, search);
+    try {
+      await axios.delete(`/api/media/${selectedMedia.id}`);
+      toast.success("Media deleted successfully");
+      setOpen(false);
+      fetchMedia(data.pagination.page, search);
+    } catch {
+      toast.error("Failed to delete media");
+    }
   };
 
   const replaceMedia = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    await axios.put(`/api/media/${selectedMedia.id}/replace`, formData);
-
-    fetchMedia(data.pagination.page, search);
+    try {
+      await axios.put(`/api/media/${selectedMedia.id}/replace`, formData);
+      toast.success("Media replaced successfully");
+      fetchMedia(data.pagination.page, search);
+    } catch {
+      toast.error("Failed to replace media");
+    }
   };
 
   const saveMetadata = async () => {
-    await axios.patch(`/api/media/${selectedMedia.id}`, {
-      alt: altText,
-      caption,
-    });
-
-    fetchMedia(data.pagination.page, search);
+    try {
+      await axios.patch(`/api/media/${selectedMedia.id}`, {
+        alt: altText,
+        caption,
+      });
+      toast.success("Media details saved");
+      fetchMedia(data.pagination.page, search);
+    } catch {
+      toast.error("Failed to save media details");
+    }
   };
 
   return (
