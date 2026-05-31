@@ -108,3 +108,17 @@ enum PostStatus {
   PUBLISHED
   ARCHIVED
 }
+
+/// WordPress-style key/value store for site and plugin settings.
+model Option {
+  id     String  @id @default(uuid())
+  key    String  @unique
+  value  Json
+  /// When true, load with other autoload options (like WP autoload = yes).
+  autoload Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("options")
+}
