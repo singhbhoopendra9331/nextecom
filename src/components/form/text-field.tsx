@@ -35,7 +35,7 @@ type TextFieldInnerProps = TextFieldInputProps &
     ref?: React.Ref<HTMLInputElement>;
   };
 
-function TextFieldInner({
+export function TextFieldInner({
   id: idProp,
   label,
   helpText,

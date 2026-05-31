@@ -11,6 +11,8 @@ type Media = {
   originalName: string;
 };
 
+export type MediaPickerValue = Media;
+
 type MediaResponse = {
   docs: Media[];
 };

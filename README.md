@@ -28,10 +28,10 @@ https://www.udemy.com/
 - text/textarea
 - number
 - select
+- email
+- date, date range
 - richtext
 - upload
-- email
-- date
 - checkbox
 
 
