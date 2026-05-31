@@ -85,7 +85,7 @@ export function DataTable<T>({
             ))}
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="[&_tr:nth-child(even)]:bg-muted/40">
           {data.length === 0 ? (
             <TableRow>
               <TableCell
