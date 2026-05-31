@@ -6,7 +6,7 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
-import { deletePage } from "@/actions/pages/delete-page";
+import { deletePage } from "@/actions/pages/delete";
 import { DataTable, DataTableColumn } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
