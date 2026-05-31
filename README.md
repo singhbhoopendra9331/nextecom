@@ -33,3 +33,15 @@ https://www.udemy.com/
 - email
 - date
 - checkbox
+
+
+## Prisma
+
+```bash
+# save new save and migrate
+npx prisma migrate dev --name add_pages_table
+
+# generate client
+npx prisma generate
+```
+
