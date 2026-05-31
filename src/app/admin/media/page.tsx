@@ -1,22 +1,22 @@
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import MediaPageClient from "./page.client";
+
 import { axios } from "@/lib/axios";
 
-async function getMedia() {
+import { Button } from "@/components/ui/button";
+import MediaPageClient from "./page.client";
+
+async function getMedia(q: string) {
   const res = await axios.get(
-    `/api/media?page=1&limit=20`
+    `/api/media?page=1&limit=20&q=${q}`
   );
-
   if (!res.data) throw new Error("Failed to fetch media");
-
   return res.data;
 }
 
 export default async function Page() {
-  const initialData = await getMedia();
-  // console.log("initialData", initialData);
-
+  const initialData = await getMedia("");
+  // get query params on server
+  
   return (
     <div className="min-h-screen p-2 md:p-4 space-y-6">
       <h1 className="font-semibold text-2xl flex items-center gap-4">

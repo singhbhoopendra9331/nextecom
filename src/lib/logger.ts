@@ -1,6 +1,8 @@
+import { getEnv } from "@/lib/env";
+
 /** Reusable environment-based logger */
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = getEnv("NODE_ENV") === "development";
 
 const formatData = (data: any) => {
   if (data instanceof Error) {

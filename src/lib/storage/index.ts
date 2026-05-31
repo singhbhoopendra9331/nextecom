@@ -1,8 +1,9 @@
+import { getEnv } from "@/lib/env";
 import { uploadToCloudinary } from "./cloudinary";
 import { uploadToLocal } from "./local";
 
 export async function uploadFile(file: File) {
-  const provider = process.env.STORAGE_PROVIDER;
+  const provider = getEnv("STORAGE_PROVIDER");
 
   switch (provider) {
     case "cloudinary":

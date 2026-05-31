@@ -1,5 +1,6 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { getEnv } from "@/lib/env";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -7,7 +8,7 @@ const globalForPrisma = globalThis as unknown as {
 
 /** Use DATABASE_URL; if the value wrongly starts with "DATABASE_URL=", strip it. */
 function getConnectionString(): string {
-  const raw = process.env.DATABASE_URL ?? "";
+  const raw = getEnv("DATABASE_URL");
   if (raw.startsWith("DATABASE_URL=")) {
     const match = raw.match(/^DATABASE_URL=(.+)$/);
     return (match?.[1] ?? raw).replace(/^["']|["']$/g, "").trim();
@@ -25,7 +26,7 @@ function getPrisma(): PrismaClient {
     adapter,
     log: ["error"],
   });
-  if (process.env.NODE_ENV !== "production") {
+  if (getEnv("NODE_ENV") !== "production") {
     globalForPrisma.prisma = client;
   }
   return client;

@@ -7,15 +7,15 @@ export async function GET(req: Request) {
 
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(searchParams.get("limit") || 20);
-    const search = searchParams.get("search") || "";
+    const q = searchParams.get("q") || "";
 
     const skip = (page - 1) * limit;
 
-    const where = search
+    const where = q
       ? {
         OR: [
-          { filename: { contains: search, mode: "insensitive" } },
-          { originalName: { contains: search, mode: "insensitive" } },
+          { filename: { contains: q, mode: "insensitive" } },
+          { originalName: { contains: q, mode: "insensitive" } },
         ],
       }
       : {};

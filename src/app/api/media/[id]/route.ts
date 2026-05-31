@@ -118,7 +118,7 @@ export async function DELETE(req: Request, { params }: Params) {
         /*
         if (media.provider === "S3" && media.providerId) {
           await s3.deleteObject({
-            Bucket: process.env.AWS_BUCKET!,
+            Bucket: getEnv("AWS_BUCKET"),
             Key: media.providerId,
           }).promise();
         }
