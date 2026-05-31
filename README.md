@@ -22,3 +22,14 @@ https://www.udemy.com/
 # Forms
 
 - React hook form and shadcn
+
+# Use field based forms
+
+- text/textarea
+- number
+- select
+- richtext
+- upload
+- email
+- date
+- checkbox

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { createUser } from "@/actions/users/create-user";
 import { updateUser } from "@/actions/users/update-user";
@@ -20,12 +20,16 @@ type UserFormProps = {
   mode: "create" | "edit";
   userId?: string;
   initialValues?: UserFormInitialValues;
+  onSuccess?: () => void;
+  showHeader?: boolean;
 };
 
 export default function UserForm({
   mode,
   userId,
   initialValues,
+  onSuccess,
+  showHeader = true,
 }: UserFormProps) {
   const router = useRouter();
   const [name, setName] = useState(initialValues?.name ?? "");
@@ -33,6 +37,13 @@ export default function UserForm({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setName(initialValues?.name ?? "");
+    setEmail(initialValues?.email ?? "");
+    setPassword("");
+    setConfirmPassword("");
+  }, [userId, initialValues?.name, initialValues?.email]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -81,6 +92,10 @@ export default function UserForm({
           ? "User created successfully"
           : "User updated successfully"
       );
+      if (onSuccess) {
+        onSuccess();
+        return;
+      }
       router.push("/admin/users");
       return;
     }
@@ -89,17 +104,22 @@ export default function UserForm({
   }
 
   return (
-    <div className="min-h-screen p-2 md:p-4">
-      <div className="mb-4 flex items-center gap-4">
-        <h1 className="font-semibold text-2xl">
-          {mode === "create" ? "Create User" : "Edit User"}
-        </h1>
-        <Button variant="outline" asChild>
-          <Link href="/admin/users">Back to Users</Link>
-        </Button>
-      </div>
+    <div className={showHeader ? "min-h-screen p-2 md:p-4" : undefined}>
+      {showHeader && (
+        <div className="mb-4 flex items-center gap-4">
+          <h1 className="font-semibold text-2xl">
+            {mode === "create" ? "Create User" : "Edit User"}
+          </h1>
+          <Button variant="outline" asChild>
+            <Link href="/admin/users">Back to Users</Link>
+          </Button>
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className={showHeader ? "max-w-md space-y-4" : "space-y-4 px-4"}
+      >
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
           <Input

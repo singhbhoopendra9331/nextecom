@@ -1,13 +1,10 @@
 import {
-
     GalleryVerticalEnd,
-
     Users,
     Image,
     FileText,
     LayoutDashboard,
     FolderTree,
-
     Settings,
     ShoppingCart,
 } from "lucide-react";
@@ -81,10 +78,6 @@ export const data = {
                 {
                     title: "Media Library",
                     url: "/admin/media",
-                },
-                {
-                    title: "Menus",
-                    url: "/admin/menus",
                 },
             ],
         },
