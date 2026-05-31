@@ -6,7 +6,7 @@ import { useState } from "react";
 import { AppSheet } from "@/components/app-sheet";
 import { DataTable, DataTableColumn } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { User } from "@/generated/prisma/client";
+import { User } from "@/generated/prisma/browser";
 
 import UserForm from "./user-form";
 

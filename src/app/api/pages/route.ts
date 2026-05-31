@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@/generated/prisma/client";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
 
   const page = Number(searchParams.get("page") || 1);
   const limit = Number(searchParams.get("limit") || 20);

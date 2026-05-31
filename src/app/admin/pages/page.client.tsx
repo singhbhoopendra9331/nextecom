@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Page, PostStatus } from "@/generated/prisma/client";
+import { Page, PostStatus } from "@/generated/prisma/browser";
 import { toast } from "@/lib/toast";
 
 type PageRow = Page & {
@@ -69,7 +69,7 @@ function PageRowActions({ page }: { page: PageRow }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuItem asChild>
-          <Link href={`/admin/pages/${page.id}`}>
+          <Link href={`/admin/pages/${page.id}/edit`}>
             <Pencil className="text-muted-foreground" />
             Edit
           </Link>
@@ -107,7 +107,7 @@ const PagesPageClient = ({
       header: "Title",
       accessorKey: "title",
       cell: (row) => (
-        <Link className="link" href={`/admin/pages/${row.id}`}>
+        <Link className="link" href={`/admin/pages/${row.id}/edit`}>
           {row.title}
         </Link>
       ),

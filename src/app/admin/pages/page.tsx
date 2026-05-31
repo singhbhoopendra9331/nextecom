@@ -1,11 +1,19 @@
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+
 import { axios } from "@/lib/axios";
+
+import { Button } from "@/components/ui/button";
 import PagesPageClient from "./page.client";
 
-export default async function Page() {
+const getPages = async () => {
   const pages = await axios.get("/api/pages");
+  console.log("pages >>", pages.data);
   if (!pages.data) throw new Error("Failed to fetch pages");
+  return pages.data;
+}
+
+export default async function Page() {
+  const pages = await getPages();
 
   return (
     <div className="min-h-screen p-2 md:p-4 space-y-6">
@@ -16,7 +24,7 @@ export default async function Page() {
         </Button>
       </h1>
 
-      <PagesPageClient initialData={pages.data} />
+      <PagesPageClient initialData={pages} />
     </div>
   );
 }

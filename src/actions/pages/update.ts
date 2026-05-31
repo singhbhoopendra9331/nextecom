@@ -1,11 +1,10 @@
 "use server";
 import { PostStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { JsonValue } from "@prisma/client/runtime/client";
 
 type Input = {
   title: string;
-  content?: JsonValue;
+  content?: unknown;
   status?: PostStatus | undefined;
   featuredImageId?: string | null;
 };
