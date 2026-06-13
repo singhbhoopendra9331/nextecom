@@ -1,0 +1,157 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { updateGlobalSettings } from "@/actions/settings/update-settings";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  DEFAULT_GLOBAL_SETTINGS,
+  type GlobalSettings,
+} from "@/lib/settings/constants";
+import { toast } from "@/lib/toast";
+
+type GlobalSettingsFormProps = {
+  initialValues?: Partial<GlobalSettings>;
+  onSuccess?: () => void;
+};
+
+export default function GlobalSettingsForm({
+  initialValues,
+  onSuccess,
+}: GlobalSettingsFormProps) {
+  const [settings, setSettings] = useState<GlobalSettings>({
+    ...DEFAULT_GLOBAL_SETTINGS,
+    ...initialValues,
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setSettings({
+      ...DEFAULT_GLOBAL_SETTINGS,
+      ...initialValues,
+    });
+  }, [initialValues]);
+
+  function updateField<K extends keyof GlobalSettings>(
+    key: K,
+    value: GlobalSettings[K]
+  ) {
+    setSettings((current) => ({ ...current, [key]: value }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const res = await updateGlobalSettings(settings);
+
+    setIsSubmitting(false);
+
+    if (res.success) {
+      toast.success("Global settings saved successfully");
+      onSuccess?.();
+      return;
+    }
+
+    toast.error(res.error ?? "Failed to save global settings");
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6 px-4">
+      <section className="space-y-4">
+        <h3 className="text-sm font-medium">General</h3>
+
+        <div className="space-y-2">
+          <Label htmlFor="siteTitle">Site Title</Label>
+          <Input
+            id="siteTitle"
+            value={settings.siteTitle}
+            onChange={(e) => updateField("siteTitle", e.target.value)}
+            placeholder="Your store name"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="siteTagline">Tagline</Label>
+          <Textarea
+            id="siteTagline"
+            value={settings.siteTagline}
+            onChange={(e) => updateField("siteTagline", e.target.value)}
+            placeholder="Short description of your site"
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h3 className="text-sm font-medium">Contact</h3>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="contactEmail">Email</Label>
+            <Input
+              id="contactEmail"
+              type="email"
+              value={settings.contactEmail}
+              onChange={(e) => updateField("contactEmail", e.target.value)}
+              placeholder="hello@example.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="contactPhone">Phone</Label>
+            <Input
+              id="contactPhone"
+              value={settings.contactPhone}
+              onChange={(e) => updateField("contactPhone", e.target.value)}
+              placeholder="+1 234 567 8900"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="address">Address</Label>
+          <Textarea
+            id="address"
+            value={settings.address}
+            onChange={(e) => updateField("address", e.target.value)}
+            placeholder="Business address"
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h3 className="text-sm font-medium">Regional</h3>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="currency">Currency</Label>
+            <Input
+              id="currency"
+              value={settings.currency}
+              onChange={(e) => updateField("currency", e.target.value)}
+              placeholder="USD"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="timezone">Timezone</Label>
+            <Input
+              id="timezone"
+              value={settings.timezone}
+              onChange={(e) => updateField("timezone", e.target.value)}
+              placeholder="UTC"
+            />
+          </div>
+        </div>
+      </section>
+
+      <Button type="submit" disabled={isSubmitting} className="w-full">
+        {isSubmitting ? "Saving..." : "Save Global Settings"}
+      </Button>
+    </form>
+  );
+}

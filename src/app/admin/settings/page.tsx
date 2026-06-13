@@ -1,20 +1,25 @@
-import { getGlobalSettings } from "@/lib/settings";
+import { getAllOptions } from "@/lib/options";
+import { ensureDefaultOptions } from "@/lib/settings";
 
 import SettingsPageClient from "./page.client";
 
 export default async function SettingsPage() {
-  const settings = await getGlobalSettings();
+  await ensureDefaultOptions();
+
+  const options = await getAllOptions();
+
+  const serializedOptions = options.map((option) => ({
+    id: option.id,
+    key: option.key,
+    value: option.value,
+    autoload: option.autoload,
+    createdAt: option.createdAt.toISOString(),
+    updatedAt: option.updatedAt.toISOString(),
+  }));
 
   return (
     <div className="min-h-screen p-2 md:p-4">
-      <div className="mb-6">
-        <h1 className="font-semibold text-2xl">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage global site information stored in the options table.
-        </p>
-      </div>
-
-      <SettingsPageClient initialSettings={settings} />
+      <SettingsPageClient initialOptions={serializedOptions} />
     </div>
   );
 }

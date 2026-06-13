@@ -43,14 +43,14 @@ export function AppSheet({
 
   return (
     <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
-      <SheetContent side={side} className={`${width} p-0`}>
+      <SheetContent side={side} className={`${width} flex flex-col gap-0 p-0`}>
         {title && (
-          <SheetHeader className="border-b px-4 py-3">
+          <SheetHeader className="shrink-0 border-b px-4 py-3">
             <SheetTitle>{title}</SheetTitle>
           </SheetHeader>
         )}
 
-        <div className="py-4">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto py-4">{children}</div>
       </SheetContent>
     </Sheet>
   );

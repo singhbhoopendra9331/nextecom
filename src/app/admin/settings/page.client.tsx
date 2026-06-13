@@ -1,139 +1,189 @@
 "use client";
 
+import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { updateGlobalSettings } from "@/actions/settings/update-settings";
+import { AppSheet } from "@/components/app-sheet";
+import { DataTable, DataTableColumn } from "@/components/data-table";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { type GlobalSettings } from "@/lib/settings";
-import { toast } from "@/lib/toast";
+import {
+  GLOBAL_SETTINGS_KEY,
+  SMTP_SETTINGS_KEY,
+} from "@/lib/settings/constants";
+import {
+  detectOptionValueType,
+  formatOptionValueLabel,
+  formatOptionValuePreview,
+} from "@/lib/settings/option-value";
+
+import OptionForm, { type OptionRow } from "./option-form";
+
+const OPTION_LABELS: Record<string, string> = {
+  [GLOBAL_SETTINGS_KEY]: "Global Settings",
+  [SMTP_SETTINGS_KEY]: "SMTP",
+};
+
+function getSheetTitle(
+  mode: "create" | "edit",
+  option: OptionRow | null
+): string {
+  if (mode === "create") {
+    return "Create Option";
+  }
+
+  if (option?.key === GLOBAL_SETTINGS_KEY) {
+    return "Edit Global Settings";
+  }
+
+  if (option?.key === SMTP_SETTINGS_KEY) {
+    return "Edit SMTP Settings";
+  }
+
+  return "Edit Option";
+}
+
+function formatValuePreview(value: unknown): string {
+  return formatOptionValuePreview(value);
+}
+
+function OptionRowActions({
+  option,
+  onEdit,
+}: {
+  option: OptionRow;
+  onEdit: (option: OptionRow) => void;
+}) {
+  return (
+    <Button variant="outline" size="sm" onClick={() => onEdit(option)}>
+      Edit
+    </Button>
+  );
+}
 
 export default function SettingsPageClient({
-  initialSettings,
+  initialOptions,
 }: {
-  initialSettings: GlobalSettings;
+  initialOptions: OptionRow[];
 }) {
-  const [settings, setSettings] = useState(initialSettings);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"create" | "edit">("edit");
+  const [selectedOption, setSelectedOption] = useState<OptionRow | null>(null);
 
-  function updateField<K extends keyof GlobalSettings>(
-    key: K,
-    value: GlobalSettings[K]
-  ) {
-    setSettings((current) => ({ ...current, [key]: value }));
+  function openCreateSheet() {
+    setMode("create");
+    setSelectedOption(null);
+    setOpen(true);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setIsSubmitting(true);
+  function openEditSheet(option: OptionRow) {
+    setMode("edit");
+    setSelectedOption(option);
+    setOpen(true);
+  }
 
-    const res = await updateGlobalSettings(settings);
-
-    setIsSubmitting(false);
-
-    if (res.success) {
-      toast.success("Settings saved successfully");
-      return;
+  function handleSheetOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      setSelectedOption(null);
     }
-
-    toast.error(res.error ?? "Failed to save settings");
   }
+
+  function handleSuccess() {
+    handleSheetOpenChange(false);
+    router.refresh();
+  }
+
+  const columns: DataTableColumn<OptionRow>[] = [
+    {
+      id: "key",
+      header: "Key",
+      cell: (row) => (
+        <div>
+          <p className="font-medium">{row.key}</p>
+          {OPTION_LABELS[row.key] && (
+            <p className="text-xs text-muted-foreground">
+              {OPTION_LABELS[row.key]}
+            </p>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "type",
+      header: "Type",
+      cell: (row) => (
+        <Badge variant="outline">
+          {formatOptionValueLabel(detectOptionValueType(row.value))}
+        </Badge>
+      ),
+    },
+    {
+      id: "value",
+      header: "Value",
+      cell: (row) => (
+        <code className="text-xs text-muted-foreground">
+          {formatValuePreview(row.value)}
+        </code>
+      ),
+    },
+    {
+      id: "autoload",
+      header: "Autoload",
+      cell: (row) => (
+        <Badge variant={row.autoload ? "default" : "secondary"}>
+          {row.autoload ? "Yes" : "No"}
+        </Badge>
+      ),
+    },
+    {
+      id: "updatedAt",
+      header: "Updated",
+      cell: (row) => format(new Date(row.updatedAt), "MMM d, yyyy"),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: (row) => <OptionRowActions option={row} onEdit={openEditSheet} />,
+    },
+  ];
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">General</h2>
+    <>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-semibold text-2xl">Settings</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage global site information stored in the options table.
+          </p>
+        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="siteTitle">Site Title</Label>
-          <Input
-            id="siteTitle"
-            value={settings.siteTitle}
-            onChange={(e) => updateField("siteTitle", e.target.value)}
-            placeholder="Your store name"
-            required
+        <Button onClick={openCreateSheet}>Add Option</Button>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={initialOptions}
+        getRowKey={(row) => row.id}
+        emptyMessage="No options yet. Create your first option."
+      />
+
+      <AppSheet
+        open={open}
+        onOpenChange={handleSheetOpenChange}
+        title={getSheetTitle(mode, selectedOption)}
+        width="w-[520px]"
+      >
+        {(mode === "create" || selectedOption) && (
+          <OptionForm
+            mode={mode}
+            option={selectedOption ?? undefined}
+            onSuccess={handleSuccess}
           />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="siteTagline">Tagline</Label>
-          <Textarea
-            id="siteTagline"
-            value={settings.siteTagline}
-            onChange={(e) => updateField("siteTagline", e.target.value)}
-            placeholder="Short description of your site"
-          />
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Contact</h2>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="contactEmail">Email</Label>
-            <Input
-              id="contactEmail"
-              type="email"
-              value={settings.contactEmail}
-              onChange={(e) => updateField("contactEmail", e.target.value)}
-              placeholder="hello@example.com"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="contactPhone">Phone</Label>
-            <Input
-              id="contactPhone"
-              value={settings.contactPhone}
-              onChange={(e) => updateField("contactPhone", e.target.value)}
-              placeholder="+1 234 567 8900"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="address">Address</Label>
-          <Textarea
-            id="address"
-            value={settings.address}
-            onChange={(e) => updateField("address", e.target.value)}
-            placeholder="Business address"
-          />
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Regional</h2>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="currency">Currency</Label>
-            <Input
-              id="currency"
-              value={settings.currency}
-              onChange={(e) => updateField("currency", e.target.value)}
-              placeholder="USD"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="timezone">Timezone</Label>
-            <Input
-              id="timezone"
-              value={settings.timezone}
-              onChange={(e) => updateField("timezone", e.target.value)}
-              placeholder="UTC"
-            />
-          </div>
-        </div>
-      </section>
-
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Saving..." : "Save Settings"}
-      </Button>
-    </form>
+        )}
+      </AppSheet>
+    </>
   );
 }

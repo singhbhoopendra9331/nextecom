@@ -1,26 +1,25 @@
 import { getOption, setOption } from "@/lib/options";
 
-export const GLOBAL_SETTINGS_KEY = "global_settings";
+import {
+  DEFAULT_GLOBAL_SETTINGS,
+  DEFAULT_SMTP_SETTINGS,
+  GLOBAL_SETTINGS_KEY,
+  SMTP_SETTINGS_KEY,
+  type GlobalSettings,
+  type SmtpSettings,
+} from "@/lib/settings/constants";
 
-export type GlobalSettings = {
-  siteTitle: string;
-  siteTagline: string;
-  contactEmail: string;
-  contactPhone: string;
-  address: string;
-  currency: string;
-  timezone: string;
-};
-
-export const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
-  siteTitle: "NextEcom",
-  siteTagline: "",
-  contactEmail: "",
-  contactPhone: "",
-  address: "",
-  currency: "INR",
-  timezone: "UTC",
-};
+export {
+  DEFAULT_GLOBAL_SETTINGS,
+  DEFAULT_SMTP_SETTINGS,
+  GLOBAL_SETTINGS_KEY,
+  SMTP_SETTINGS_KEY,
+  STRUCTURED_OPTION_KEYS,
+  type GlobalSettings,
+  type SmtpEncryption,
+  type SmtpSettings,
+  type StructuredOptionKey,
+} from "@/lib/settings/constants";
 
 export async function getGlobalSettings(): Promise<GlobalSettings> {
   const stored = await getOption<Partial<GlobalSettings>>(GLOBAL_SETTINGS_KEY);
@@ -33,4 +32,33 @@ export async function getGlobalSettings(): Promise<GlobalSettings> {
 
 export async function saveGlobalSettings(settings: GlobalSettings) {
   await setOption(GLOBAL_SETTINGS_KEY, settings);
+}
+
+export async function getSmtpSettings(): Promise<SmtpSettings> {
+  const stored = await getOption<Partial<SmtpSettings>>(SMTP_SETTINGS_KEY);
+
+  return {
+    ...DEFAULT_SMTP_SETTINGS,
+    ...stored,
+  };
+}
+
+export async function saveSmtpSettings(settings: SmtpSettings) {
+  await setOption(SMTP_SETTINGS_KEY, settings);
+}
+
+export async function ensureDefaultOptions() {
+  const [globalSettings, smtpSettings] = await Promise.all([
+    getOption(GLOBAL_SETTINGS_KEY),
+    getOption(SMTP_SETTINGS_KEY),
+  ]);
+
+  await Promise.all([
+    globalSettings
+      ? Promise.resolve()
+      : setOption(GLOBAL_SETTINGS_KEY, DEFAULT_GLOBAL_SETTINGS),
+    smtpSettings
+      ? Promise.resolve()
+      : setOption(SMTP_SETTINGS_KEY, DEFAULT_SMTP_SETTINGS),
+  ]);
 }
