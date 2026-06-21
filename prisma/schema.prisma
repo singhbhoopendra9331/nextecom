@@ -143,3 +143,25 @@ model Option {
 
   @@map("options")
 }
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+}
+
+model ApplicationLog {
+  id        String   @id @default(uuid())
+  level     LogLevel
+  message   String   @db.Text
+  context   Json?
+  stack     String?  @db.Text
+  source    String?
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([createdAt])
+  @@index([source])
+  @@map("application_logs")
+}

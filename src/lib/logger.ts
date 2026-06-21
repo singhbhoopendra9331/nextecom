@@ -1,10 +1,8 @@
-import { getEnv } from "@/lib/env";
+import type { AppLogLevel } from "@/lib/logs/constants";
 
-/** Reusable environment-based logger */
+const isDev = process.env.NODE_ENV === "development";
 
-const isDev = getEnv("NODE_ENV") === "development";
-
-const formatData = (data: any) => {
+const formatData = (data: unknown) => {
   if (data instanceof Error) {
     return {
       message: data.message,
@@ -12,7 +10,7 @@ const formatData = (data: any) => {
     };
   }
 
-  if (typeof data === "object") {
+  if (typeof data === "object" && data !== null) {
     try {
       return JSON.stringify(data, null, 2);
     } catch {
@@ -23,31 +21,66 @@ const formatData = (data: any) => {
   return data;
 };
 
+function writeToConsole(
+  level: AppLogLevel,
+  prefix: string,
+  args: unknown[]
+) {
+  const formatted = args.map(formatData);
+
+  switch (level) {
+    case "ERROR":
+      console.error(prefix, ...formatted);
+      break;
+    case "WARN":
+      console.warn(prefix, ...formatted);
+      break;
+    case "DEBUG":
+      console.debug(prefix, ...formatted);
+      break;
+    default:
+      console.log(prefix, ...formatted);
+  }
+}
+
+function persistLog(level: AppLogLevel, args: unknown[]) {
+  if (typeof window !== "undefined") {
+    return;
+  }
+
+  void import("@/lib/logs")
+    .then(({ createApplicationLog }) => createApplicationLog(level, args))
+    .catch((error) => {
+      console.error("[logger] Failed to persist log:", error);
+    });
+}
+
+function logWithLevel(level: AppLogLevel, prefix: string, args: unknown[]) {
+  if (isDev) {
+    writeToConsole(level, prefix, args);
+  }
+
+  persistLog(level, args);
+}
+
 export const logger = {
-  log: (...args: any[]) => {
-    if (!isDev) return;
-
-    console.log(
-      "[LOG]",
-      ...args.map(formatData)
-    );
+  debug: (...args: unknown[]) => {
+    logWithLevel("DEBUG", "[DEBUG]", args);
   },
 
-  error: (...args: any[]) => {
-    if (!isDev) return;
-
-    console.error(
-      "[ERROR]",
-      ...args.map(formatData)
-    );
+  log: (...args: unknown[]) => {
+    logWithLevel("INFO", "[LOG]", args);
   },
 
-  warn: (...args: any[]) => {
-    if (!isDev) return;
+  info: (...args: unknown[]) => {
+    logWithLevel("INFO", "[INFO]", args);
+  },
 
-    console.warn(
-      "[WARN]",
-      ...args.map(formatData)
-    );
+  warn: (...args: unknown[]) => {
+    logWithLevel("WARN", "[WARN]", args);
+  },
+
+  error: (...args: unknown[]) => {
+    logWithLevel("ERROR", "[ERROR]", args);
   },
 };

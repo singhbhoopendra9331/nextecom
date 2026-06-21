@@ -1,0 +1,44 @@
+import { queryApplicationLogs } from "@/lib/logs";
+import { LogLevel } from "@/generated/prisma/client";
+import { NextResponse } from "next/server";
+
+const LOG_LEVELS = new Set<string>(Object.values(LogLevel));
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+
+    const page = Number(searchParams.get("page") || 1);
+    const limit = Number(searchParams.get("limit") || 20);
+    const q = searchParams.get("q") || "";
+    const source = searchParams.get("source") || "";
+    const dateFrom = searchParams.get("dateFrom") || "";
+    const dateTo = searchParams.get("dateTo") || "";
+    const levelParam = searchParams.get("level") || "";
+    const level = LOG_LEVELS.has(levelParam)
+      ? (levelParam as LogLevel)
+      : undefined;
+
+    const data = await queryApplicationLogs({
+      page,
+      limit,
+      q,
+      source,
+      dateFrom,
+      dateTo,
+      level,
+    });
+
+    return NextResponse.json(data);
+  } catch (error: unknown) {
+    console.error("GET /api/logs:", error);
+
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to fetch logs",
+      },
+      { status: 500 }
+    );
+  }
+}

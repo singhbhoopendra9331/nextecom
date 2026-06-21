@@ -7,6 +7,7 @@ import {
     FolderTree,
     Settings,
     ShoppingCart,
+    ScrollText,
 } from "lucide-react";
 
 export const data = {
@@ -118,6 +119,13 @@ export const data = {
             title: "Settings",
             url: "/admin/settings",
             icon: Settings,
+        },
+
+        // 📋 Logs
+        {
+            title: "Logs",
+            url: "/admin/logs",
+            icon: ScrollText,
         },
     ],
 };

@@ -16,25 +16,53 @@ function getConnectionString(): string {
   return raw.trim();
 }
 
-function getPrisma(): PrismaClient {
-  if (globalForPrisma.prisma) return globalForPrisma.prisma;
+function createPrismaClient() {
   const connectionString = getConnectionString();
   const adapter = new PrismaPg({
     connectionString,
   });
-  const client = new PrismaClient({
+
+  return new PrismaClient({
     adapter,
     log: ["error"],
   });
-  if (getEnv("NODE_ENV") !== "production") {
-    globalForPrisma.prisma = client;
+}
+
+function isValidClient(client: PrismaClient | undefined): client is PrismaClient {
+  return Boolean(
+    client &&
+      typeof (client as unknown as Record<string, unknown>).applicationLog ===
+        "object"
+  );
+}
+
+function getPrisma(): PrismaClient {
+  if (isValidClient(globalForPrisma.prisma)) {
+    return globalForPrisma.prisma;
   }
+
+  const staleClient = globalForPrisma.prisma;
+
+  if (staleClient) {
+    void staleClient.$disconnect().catch(() => undefined);
+  }
+
+  const client = createPrismaClient();
+  globalForPrisma.prisma = client;
+
   return client;
 }
 
 /** Lazy singleton: created on first use (e.g. prisma.post) so Next.js API routes get a valid client. */
 export const prisma = new Proxy({} as PrismaClient, {
   get(_, prop) {
-    return (getPrisma() as unknown as Record<string | symbol, unknown>)[prop];
+    const client = getPrisma();
+    const value = (client as unknown as Record<string | symbol, unknown>)[prop];
+
+    if (typeof value === "function") {
+      return value.bind(client);
+    }
+
+    return value;
   },
 });
