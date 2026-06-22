@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 
-import PostForm from "../../../../components/post-form";
+import PostForm from "../../../../components/admin/post-form";
 
 export default async function EditPostPage({
   params,

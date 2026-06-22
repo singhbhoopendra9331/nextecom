@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link"; 
 import { axios } from "@/lib/axios";
 import PostPageClient from "./page.client";
+import { PageTitle } from "@/components/page-title";
 
 export default async function Page() {
   const posts = await axios.get("/api/posts");
@@ -10,12 +11,12 @@ export default async function Page() {
 
   return (
     <div className="min-h-screen p-2 md:p-4 space-y-6">
-      <h1 className="font-semibold text-2xl flex items-center gap-4">
-        Posts
-        <Button variant="outline" asChild>
+
+      <PageTitle title="Posts" description="Manage your posts">
+        <Button size="sm" variant="outline" asChild>
           <Link href="/admin/posts/create">Add Post</Link>
         </Button>
-      </h1>
+      </PageTitle>
 
       <PostPageClient initialData={posts.data} />   
     </div>

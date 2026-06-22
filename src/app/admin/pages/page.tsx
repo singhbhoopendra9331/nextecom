@@ -4,6 +4,7 @@ import { axios } from "@/lib/axios";
 
 import { Button } from "@/components/ui/button";
 import PagesPageClient from "./page.client";
+import { PageTitle } from "@/components/page-title";
 
 const getPages = async () => {
   const pages = await axios.get("/api/pages");
@@ -17,13 +18,11 @@ export default async function Page() {
 
   return (
     <div className="min-h-screen p-2 md:p-4 space-y-6">
-      <h1 className="font-semibold text-2xl flex items-center gap-4">
-        Pages
-        <Button variant="outline" asChild>
+      <PageTitle title="Pages" description="Manage your pages">
+        <Button size="sm" variant="outline" asChild>
           <Link href="/admin/pages/create">Add Page</Link>
         </Button>
-      </h1>
-
+      </PageTitle>
       <PagesPageClient initialData={pages} />
     </div>
   );

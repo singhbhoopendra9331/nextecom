@@ -2,6 +2,7 @@ import { getAllOptions } from "@/lib/options";
 import { ensureDefaultOptions } from "@/lib/settings";
 
 import SettingsPageClient from "./page.client";
+import { PageTitle } from "@/components/page-title";
 
 export default async function SettingsPage() {
   await ensureDefaultOptions();
@@ -19,6 +20,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="min-h-screen p-2 md:p-4">
+      <PageTitle title="Settings" description="Manage your settings"/>
       <SettingsPageClient initialOptions={serializedOptions} />
     </div>
   );

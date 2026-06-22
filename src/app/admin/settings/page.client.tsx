@@ -153,13 +153,7 @@ export default function SettingsPageClient({
   return (
     <>
       <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="font-semibold text-2xl">Settings</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage global site information stored in the options table.
-          </p>
-        </div>
-
+         
         <Button onClick={openCreateSheet}>Add Option</Button>
       </div>
 

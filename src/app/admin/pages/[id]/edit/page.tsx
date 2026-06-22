@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import PageForm from "@/components/page-form";
+import PageForm from "@/components/admin/page-form";
 import { prisma } from "@/lib/prisma";
 
 export default async function EditPagePage({
