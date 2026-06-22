@@ -8,6 +8,9 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react"
+import { useTransition } from "react"
+
+import { logoutAction } from "@/actions/auth/logout"
 
 import {
   Avatar,
@@ -40,6 +43,13 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const [isPending, startTransition] = useTransition()
+
+  function handleLogout() {
+    startTransition(async () => {
+      await logoutAction()
+    })
+  }
 
   return (
     <SidebarMenu>
@@ -102,9 +112,9 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout} disabled={isPending}>
               <LogOut />
-              Log out
+              {isPending ? "Signing out..." : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
