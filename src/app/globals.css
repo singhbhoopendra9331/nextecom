@@ -126,3 +126,8 @@
 .link { 
   @apply text-blue-700 hover:text-blue-800 hover:underline;
 }
+
+/** not disabled buttons and links should have a pointer cursor */
+button[type="button"]:not([disabled]), a[href]:not([disabled]) {
+  @apply cursor-pointer;
+}
