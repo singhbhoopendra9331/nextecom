@@ -2,21 +2,32 @@ import nodemailer from "nodemailer";
 
 import { getEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
-import { getSmtpSettings } from "@/lib/settings";
+import { getSmtpSettings, type SmtpSettings } from "@/lib/settings";
 
 type SendMailInput = {
   to: string;
   subject: string;
   text: string;
   html?: string;
+  smtp?: SmtpSettings;
 };
 
-export async function sendMail({ to, subject, text, html }: SendMailInput) {
-  const smtp = await getSmtpSettings();
+type SendMailResult =
+  | { sent: true }
+  | { sent: false; reason: "smtp_disabled" | "smtp_misconfigured" | "send_failed"; error?: string };
+
+export async function sendMail({
+  to,
+  subject,
+  text,
+  html,
+  smtp: smtpOverride,
+}: SendMailInput): Promise<SendMailResult> {
+  const smtp = smtpOverride ?? (await getSmtpSettings());
 
   if (!smtp.enabled) {
     logger.warn("[email] SMTP disabled; message not sent:", { to, subject, text });
-    return { sent: false as const, reason: "smtp_disabled" as const };
+    return { sent: false, reason: "smtp_disabled" };
   }
 
   if (!smtp.host || !smtp.fromEmail) {
@@ -24,7 +35,7 @@ export async function sendMail({ to, subject, text, html }: SendMailInput) {
       to,
       subject,
     });
-    return { sent: false as const, reason: "smtp_misconfigured" as const };
+    return { sent: false, reason: "smtp_misconfigured" };
   }
 
   const transporter = nodemailer.createTransport({
@@ -41,17 +52,26 @@ export async function sendMail({ to, subject, text, html }: SendMailInput) {
     ...(smtp.encryption === "tls" ? { requireTLS: true } : {}),
   });
 
-  await transporter.sendMail({
-    from: smtp.fromName
-      ? `${smtp.fromName} <${smtp.fromEmail}>`
-      : smtp.fromEmail,
-    to,
-    subject,
-    text,
-    html,
-  });
+  try {
+    await transporter.sendMail({
+      from: smtp.fromName
+        ? `${smtp.fromName} <${smtp.fromEmail}>`
+        : smtp.fromEmail,
+      to,
+      subject,
+      text,
+      html,
+    });
 
-  return { sent: true as const };
+    logger.info("[email] Message sent:", { to, subject });
+    return { sent: true };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to send email";
+
+    logger.error("[email] Failed to send message:", error, { to, subject });
+    return { sent: false, reason: "send_failed", error: message };
+  }
 }
 
 export function getAppBaseUrl() {

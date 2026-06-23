@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { sendTestEmail } from "@/actions/settings/send-test-email";
 import { updateSmtpSettings } from "@/actions/settings/update-smtp-settings";
 import { AppSelect } from "@/components/select";
 import { Button } from "@/components/ui/button";
@@ -34,13 +35,18 @@ export default function SmtpSettingsForm({
     ...DEFAULT_SMTP_SETTINGS,
     ...initialValues,
   });
+  const [testRecipient, setTestRecipient] = useState(
+    initialValues?.fromEmail ?? ""
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
 
   useEffect(() => {
     setSettings({
       ...DEFAULT_SMTP_SETTINGS,
       ...initialValues,
     });
+    setTestRecipient(initialValues?.fromEmail ?? "");
   }, [initialValues]);
 
   function updateField<K extends keyof SmtpSettings>(
@@ -65,6 +71,29 @@ export default function SmtpSettingsForm({
     }
 
     toast.error(res.error ?? "Failed to save SMTP settings");
+  }
+
+  async function handleSendTestEmail() {
+    if (!testRecipient.trim()) {
+      toast.error("Recipient email is required");
+      return;
+    }
+
+    setIsTesting(true);
+
+    const res = await sendTestEmail({
+      to: testRecipient,
+      smtp: settings,
+    });
+
+    setIsTesting(false);
+
+    if (res.success) {
+      toast.success("Test email sent successfully");
+      return;
+    }
+
+    toast.error(res.error ?? "Failed to send test email");
   }
 
   return (
@@ -173,7 +202,37 @@ export default function SmtpSettingsForm({
         </div>
       </section>
 
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <section className="space-y-4 rounded-md border p-4">
+        <div className="space-y-1">
+          <h3 className="text-sm font-medium">Test email</h3>
+          <p className="text-xs text-muted-foreground">
+            Send a test message using the settings above without saving.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="smtpTestRecipient">Recipient email</Label>
+          <Input
+            id="smtpTestRecipient"
+            type="email"
+            value={testRecipient}
+            onChange={(e) => setTestRecipient(e.target.value)}
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          disabled={isTesting || isSubmitting}
+          onClick={handleSendTestEmail}
+          className="w-full"
+        >
+          {isTesting ? "Sending..." : "Send Test Email"}
+        </Button>
+      </section>
+
+      <Button type="submit" disabled={isSubmitting || isTesting} className="w-full">
         {isSubmitting ? "Saving..." : "Save SMTP Settings"}
       </Button>
     </form>
