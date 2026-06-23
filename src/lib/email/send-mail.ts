@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 
 import { getEnv } from "@/lib/env";
+import { logger } from "@/lib/logger";
 import { getSmtpSettings } from "@/lib/settings";
 
 type SendMailInput = {
@@ -14,12 +15,12 @@ export async function sendMail({ to, subject, text, html }: SendMailInput) {
   const smtp = await getSmtpSettings();
 
   if (!smtp.enabled) {
-    console.warn("[email] SMTP disabled; message not sent:", { to, subject, text });
+    logger.warn("[email] SMTP disabled; message not sent:", { to, subject, text });
     return { sent: false as const, reason: "smtp_disabled" as const };
   }
 
   if (!smtp.host || !smtp.fromEmail) {
-    console.warn("[email] SMTP misconfigured; message not sent:", {
+    logger.warn("[email] SMTP misconfigured; message not sent:", {
       to,
       subject,
     });
