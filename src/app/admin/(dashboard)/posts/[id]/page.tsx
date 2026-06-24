@@ -30,6 +30,7 @@ export default async function EditPostPage({
         title: post.title,
         content: post.content,
         authorId: post.authorId,
+        status: post.status,
         featuredImageId: post.featuredImageId,
         featuredImage: post.featuredImage
           ? {

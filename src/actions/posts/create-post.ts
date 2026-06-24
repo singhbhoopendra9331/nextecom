@@ -1,5 +1,6 @@
 "use server";
 
+import { PostStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
@@ -9,6 +10,7 @@ type Input = {
   content?: any;
   authorId: string;
   featuredImageId?: string | null;
+  status?: PostStatus;
   tags?: string[];
   categories?: string[];
 };
@@ -30,8 +32,8 @@ export async function createPost(data: Input) {
         slug,
         content: Array.isArray(data.content) ? data.content : [],
         authorId: data.authorId,
-
         featuredImageId: data.featuredImageId ?? null,
+        status: data.status ?? PostStatus.DRAFT,
 
         tags: data.tags
           ? {
@@ -53,6 +55,7 @@ export async function createPost(data: Input) {
     });
 
     revalidatePath("/admin/posts");
+    revalidatePath("/blogs");
 
     return {
       success: true,

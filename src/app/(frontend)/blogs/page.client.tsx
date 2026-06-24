@@ -12,7 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getBlogPagePath } from "@/lib/posts/get-published-posts";
+import { getBlogPagePath } from "@/lib/posts/blog-paths";
 
 export type BlogPostCard = {
   id: string;

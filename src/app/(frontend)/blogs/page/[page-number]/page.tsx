@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import { getBlogPagePath } from "@/lib/posts/get-published-posts";
+import { getBlogPagePath } from "@/lib/posts/blog-paths";
 
 import { BlogsListing, buildBlogsMetadata } from "../../blogs-listing";
 

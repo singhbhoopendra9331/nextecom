@@ -1,7 +1,6 @@
 import { PostStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-
-export const BLOGS_PER_PAGE = 9;
+import { BLOGS_PER_PAGE } from "./blog-paths";
 
 type GetPublishedPostsArgs = {
   page?: number;
@@ -72,21 +71,4 @@ export async function getPublishedPosts({
       pages: Math.max(1, Math.ceil(total / limit)),
     },
   };
-}
-
-export function getBlogPagePath(page: number, search = "") {
-  const params = new URLSearchParams();
-
-  if (search.trim()) {
-    params.set("search", search.trim());
-  }
-
-  const query = params.toString();
-  const suffix = query ? `?${query}` : "";
-
-  if (page <= 1) {
-    return `/blogs${suffix}`;
-  }
-
-  return `/blogs/page/${page}${suffix}`;
 }

@@ -11,6 +11,7 @@ import { MediaPicker } from "@/components/media-picker";
 import { AppSelect, type SelectOption } from "@/components/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PostStatus } from "@/generated/prisma/enums";
 import { axios } from "@/lib/axios";
 import { toast } from "@/lib/toast";
 
@@ -30,6 +31,7 @@ export type PostFormInitialValues = {
   title?: string;
   content?: unknown;
   authorId?: string;
+  status?: PostStatus;
   featuredImageId?: string | null;
   featuredImage?: FeaturedImage | null;
 };
@@ -39,6 +41,12 @@ type PostFormProps = {
   postId?: string;
   initialValues?: PostFormInitialValues;
 };
+
+const statusOptions: SelectOption[] = [
+  { value: PostStatus.DRAFT, label: "Draft" },
+  { value: PostStatus.PUBLISHED, label: "Published" },
+  { value: PostStatus.ARCHIVED, label: "Archived" },
+];
 
 export default function PostForm({
   mode,
@@ -57,6 +65,9 @@ export default function PostForm({
     initialValues?.featuredImage ?? null
   );
   const [authorId, setAuthorId] = useState(initialValues?.authorId ?? "");
+  const [status, setStatus] = useState<PostStatus>(
+    initialValues?.status ?? PostStatus.DRAFT
+  );
   const [authors, setAuthors] = useState<SelectOption[]>([]);
   const [isLoadingAuthors, setIsLoadingAuthors] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,6 +103,7 @@ export default function PostForm({
       title,
       content,
       authorId,
+      status,
       featuredImageId,
     };
 
@@ -157,6 +169,13 @@ export default function PostForm({
             value={authorId}
             onValueChange={setAuthorId}
             disabled={isLoadingAuthors || authors.length === 0}
+          />
+
+          <AppSelect
+            label="Status"
+            options={statusOptions}
+            value={status}
+            onValueChange={(value) => setStatus(value as PostStatus)}
           />
 
           <div>
