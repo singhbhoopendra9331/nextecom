@@ -45,3 +45,5 @@ npx prisma migrate dev --name add_pages_table
 npx prisma generate
 ```
 
+## Auth Strategy
+
