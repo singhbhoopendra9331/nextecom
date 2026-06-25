@@ -19,8 +19,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getApplicationStats } from "@/lib/dashboard-stats";
+import { ApplicationStats, getApplicationStats } from "@/lib/dashboard-stats";
 import { PageTitle } from "@/components/page-title";
+import { axios } from "@/lib/axios";
 
 type StatCardProps = {
   title: string;
@@ -90,7 +91,7 @@ function truncateMessage(message: string, max = 80) {
 }
 
 export default async function AdminDashboardPage() {
-  const stats = await getApplicationStats();
+  const stats = await axios.get<ApplicationStats>("/api/dashboard/stats").then(res => res.data);
 
   return (
     <div className="min-h-screen p-2 md:p-4">
