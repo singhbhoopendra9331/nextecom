@@ -6,8 +6,7 @@ import { requestPasswordResetSchema } from "@/lib/auth/schemas";
 import { getAppBaseUrl } from "@/lib/email/send-mail";
 import { sendTemplatedMail } from "@/lib/email/send-templated-mail";
 import { prisma } from "@/lib/prisma";
-
-const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+import { RESET_TOKEN_TTL_MS } from "@/constants/index";
 
 export async function requestPasswordResetAction(input: { email: string }) {
   const parsed = requestPasswordResetSchema.safeParse(input);
