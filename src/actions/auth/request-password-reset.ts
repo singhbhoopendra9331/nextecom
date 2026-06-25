@@ -3,7 +3,8 @@
 import { randomBytes } from "node:crypto";
 
 import { requestPasswordResetSchema } from "@/lib/auth/schemas";
-import { getAppBaseUrl, sendMail } from "@/lib/email/send-mail";
+import { getAppBaseUrl } from "@/lib/email/send-mail";
+import { sendTemplatedMail } from "@/lib/email/send-templated-mail";
 import { prisma } from "@/lib/prisma";
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
@@ -41,11 +42,13 @@ export async function requestPasswordResetAction(input: { email: string }) {
     });
 
     const resetUrl = `${getAppBaseUrl()}/admin/reset-password/${token}`;
-    const mailResult = await sendMail({
+    const mailResult = await sendTemplatedMail({
       to: user.email,
-      subject: "Reset your admin password",
-      text: `Use this link to reset your password: ${resetUrl}\n\nThis link expires in 1 hour.`,
-      html: `<p>Use this link to reset your password:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>This link expires in 1 hour.</p>`,
+      template: "reset-password",
+      placeholders: {
+        resetUrl,
+        expiresIn: "1 hour",
+      },
     });
 
     if (!mailResult.sent) {

@@ -2,7 +2,7 @@
 
 ## 22-06-2026
 
-- [todo] - add authentication pages
+- [done] - add authentication pages
   login
   register
   password reset
@@ -21,20 +21,22 @@
 - [todo] - form integration
   create common table to store forms data
 
-- [todo] - welcome email and other templaes
+- [done] - welcome email and other templaes
   with placeholder support
 
-- [todo] - auth emails
+- [done] - auth emails
   update/reset email
 
-- [todo] - email templates or placeholders support
+- [done] - email templates or placeholders support
 
 - [todo] - admin controlled emails
-- [todo] - dynamic page rendering
-- [todo] - dynamic post rendering
+- [done] - dynamic page rendering
+- [done] - dynamic post rendering
 - [in-progress] - page title apply
-- [todo] - smtp setup
+- [done] - smtp setup
 
 - [todo] - create common table schema to store form data
 
 - [24-06-2026][todo] - resolve pg connection issue
+
+- [25-06-2026][todo] - add redirects

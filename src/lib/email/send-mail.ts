@@ -2,15 +2,8 @@ import nodemailer from "nodemailer";
 
 import { getEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
-import { getSmtpSettings, type SmtpSettings } from "@/lib/settings";
-
-type SendMailInput = {
-  to: string;
-  subject: string;
-  text: string;
-  html?: string;
-  smtp?: SmtpSettings;
-};
+import { getSmtpSettings } from "@/lib/settings";
+import { SendMailInput } from "@/types/email";
 
 type SendMailResult =
   | { sent: true }

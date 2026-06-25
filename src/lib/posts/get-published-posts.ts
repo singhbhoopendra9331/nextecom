@@ -1,6 +1,6 @@
 import { PostStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { BLOGS_PER_PAGE } from "./blog-paths";
+import { BLOGS_PER_PAGE } from "@/constants/index";
 
 type GetPublishedPostsArgs = {
   page?: number;

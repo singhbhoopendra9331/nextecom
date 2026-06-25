@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 
 import { createSession } from "@/lib/auth/session";
 import { registerSchema } from "@/lib/auth/schemas";
+import { getAppBaseUrl } from "@/lib/email/send-mail";
+import { sendTemplatedMail } from "@/lib/email/send-templated-mail";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 
@@ -31,10 +33,19 @@ export async function registerAction(input: {
         name: parsed.data.name?.trim() || null,
         password: hashPassword(parsed.data.password),
       },
-      select: { id: true },
+      select: { id: true, email: true, name: true },
     });
 
     await createSession(user.id);
+
+    void sendTemplatedMail({
+      to: user.email,
+      template: "welcome",
+      placeholders: {
+        name: user.name?.trim() || "there",
+        loginUrl: `${getAppBaseUrl()}/admin/login`,
+      },
+    });
   } catch (error: unknown) {
     if (
       error &&
