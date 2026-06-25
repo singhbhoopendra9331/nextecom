@@ -1,8 +1,7 @@
 import type { NextRequest } from "next/server";
 
 import { getEnv } from "@/lib/env";
-
-export const SESSION_COOKIE_NAME = "admin_session";
+import { SESSION_COOKIE_NAME } from "@/constants/index";
 
 export type SessionPayload = {
   userId: string;

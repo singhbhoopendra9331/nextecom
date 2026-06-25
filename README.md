@@ -22,6 +22,7 @@ https://www.udemy.com/
 # Forms
 
 - React hook form and shadcn
+- form schema using zod and validation
 
 # Use field based forms
 

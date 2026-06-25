@@ -1,5 +1,4 @@
-export const GLOBAL_SETTINGS_KEY = "global_settings";
-export const SMTP_SETTINGS_KEY = "smtp";
+import { GLOBAL_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
 
 export type GlobalSettings = {
   siteTitle: string;
