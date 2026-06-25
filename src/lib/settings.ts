@@ -2,24 +2,10 @@ import { getOption, setOption } from "@/lib/options";
 
 import {
   DEFAULT_GLOBAL_SETTINGS,
-  DEFAULT_SMTP_SETTINGS,
-  GLOBAL_SETTINGS_KEY,
-  SMTP_SETTINGS_KEY,
-  type GlobalSettings,
-  type SmtpSettings,
+  DEFAULT_SMTP_SETTINGS, 
 } from "@/lib/settings/constants";
-
-export {
-  DEFAULT_GLOBAL_SETTINGS,
-  DEFAULT_SMTP_SETTINGS,
-  GLOBAL_SETTINGS_KEY,
-  SMTP_SETTINGS_KEY,
-  STRUCTURED_OPTION_KEYS,
-  type GlobalSettings,
-  type SmtpEncryption,
-  type SmtpSettings,
-  type StructuredOptionKey,
-} from "@/lib/settings/constants";
+import { GLOBAL_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
+import { GlobalSettings, SmtpSettings } from "@/types/settings";
 
 export async function getGlobalSettings(): Promise<GlobalSettings> {
   const stored = await getOption<Partial<GlobalSettings>>(GLOBAL_SETTINGS_KEY);

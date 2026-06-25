@@ -13,12 +13,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  GLOBAL_SETTINGS_KEY,
-  SMTP_SETTINGS_KEY,
-  type GlobalSettings,
-  type SmtpSettings,
-} from "@/lib/settings/constants";
-import {
   detectOptionValueType,
   formatOptionValueForForm,
   OPTION_VALUE_TYPES,
@@ -29,6 +23,8 @@ import { toast } from "@/lib/toast";
 
 import GlobalSettingsForm from "./global-settings-form";
 import SmtpSettingsForm from "./smtp-settings-form";
+import { GlobalSettings, SmtpSettings } from "@/types/settings";
+import { GLOBAL_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
 
 export type OptionRow = {
   id: string;

@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import {
   encodeSession,
   parseSessionToken,
-  SESSION_COOKIE_NAME,
 } from "@/lib/auth/session-token";
 import { prisma } from "@/lib/prisma";
+import { SESSION_COOKIE_NAME } from "@/constants/index";
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 

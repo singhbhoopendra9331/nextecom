@@ -1,4 +1,4 @@
-export const BLOGS_PER_PAGE = 9;
+import { BLOGS_PER_PAGE } from "@/constants/index";
 
 export function getBlogPagePath(page: number, search = "") {
   const params = new URLSearchParams();

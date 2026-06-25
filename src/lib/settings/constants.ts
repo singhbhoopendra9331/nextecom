@@ -1,27 +1,5 @@
 import { GLOBAL_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
-
-export type GlobalSettings = {
-  siteTitle: string;
-  siteTagline: string;
-  contactEmail: string;
-  contactPhone: string;
-  address: string;
-  currency: string;
-  timezone: string;
-};
-
-export type SmtpEncryption = "none" | "tls" | "ssl";
-
-export type SmtpSettings = {
-  enabled: boolean;
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  fromEmail: string;
-  fromName: string;
-  encryption: SmtpEncryption;
-};
+import { GlobalSettings, SmtpSettings } from "@/types/settings";
 
 export const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   siteTitle: "NextEcom",

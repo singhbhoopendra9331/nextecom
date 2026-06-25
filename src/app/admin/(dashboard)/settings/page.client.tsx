@@ -9,21 +9,12 @@ import { DataTable, DataTableColumn } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  GLOBAL_SETTINGS_KEY,
-  SMTP_SETTINGS_KEY,
-} from "@/lib/settings/constants";
-import {
   detectOptionValueType,
   formatOptionValueLabel,
   formatOptionValuePreview,
 } from "@/lib/settings/option-value";
-
+import { GLOBAL_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
 import OptionForm, { type OptionRow } from "./option-form";
-
-const OPTION_LABELS: Record<string, string> = {
-  [GLOBAL_SETTINGS_KEY]: "Global Settings",
-  [SMTP_SETTINGS_KEY]: "SMTP",
-};
 
 function getSheetTitle(
   mode: "create" | "edit",
@@ -103,11 +94,6 @@ export default function SettingsPageClient({
       cell: (row) => (
         <div>
           <p className="font-medium">{row.key}</p>
-          {OPTION_LABELS[row.key] && (
-            <p className="text-xs text-muted-foreground">
-              {OPTION_LABELS[row.key]}
-            </p>
-          )}
         </div>
       ),
     },
