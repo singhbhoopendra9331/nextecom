@@ -130,14 +130,14 @@ export default function BlogsPageClient({
     <div className="container mx-auto max-w-6xl px-4 py-8">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-4xl font-bold">Blog</h1>
+          <h1 className="text-4xl font-bold">Posts</h1>
           <p className="mt-2 text-muted-foreground">
             {pagination.total} {pagination.total === 1 ? "post" : "posts"}
             {search ? ` matching "${search}"` : ""}
           </p>
         </div>
 
-        <form action="/blogs" method="GET" className="flex w-full max-w-md gap-2">
+        <form action="/posts" method="GET" className="flex w-full max-w-md gap-2">
           <Input
             name="search"
             defaultValue={search}

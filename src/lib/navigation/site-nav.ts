@@ -5,5 +5,5 @@ export type SiteNavLink = {
 
 export const PRIMARY_NAV_LINKS: SiteNavLink[] = [
   { title: "Home", href: "/" },
-  { title: "Blog", href: "/blogs" },
+  { title: "Posts", href: "/posts" },
 ];
