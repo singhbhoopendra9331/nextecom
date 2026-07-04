@@ -17,7 +17,7 @@ type PageClientProps = {
 
 export default function PageClient({ page }: PageClientProps) {
   return (
-    <article className="container mx-auto max-w-4xl px-4 py-8">
+    <article className="container mx-auto max-w-7xl px-4 py-8">
       <h1 className="mb-6 text-4xl font-bold">{page.title}</h1>
 
       {page.featuredImage?.url ? (

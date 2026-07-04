@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { BLOGS_PER_PAGE } from "@/constants/index";
+import { PostStatus } from "@/generated/prisma/client";
+import { axios } from "@/lib/axios";
 import { getGlobalSettings } from "@/lib/settings";
-import { getPublishedPosts } from "@/lib/posts/get-published-posts";
 
 import BlogsPageClient from "./page.client";
 
@@ -36,10 +38,15 @@ export async function buildBlogsMetadata(
 export async function BlogsListing({ page, searchParams }: BlogsListingProps) {
   const { search = "" } = await searchParams;
   const trimmedSearch = search.trim();
-  const data = await getPublishedPosts({
-    page,
-    search: trimmedSearch,
+  const response = await axios.get("/api/posts", {
+    params: {
+      page,
+      limit: BLOGS_PER_PAGE,
+      search: trimmedSearch,
+      status: PostStatus.PUBLISHED,
+    },
   });
+  const data = response.data;
 
   if (page < 1 || !Number.isInteger(page)) {
     notFound();
