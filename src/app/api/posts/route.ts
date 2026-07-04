@@ -1,6 +1,8 @@
-import { prisma } from "@/lib/prisma"; 
+import { PostStatus, Prisma } from "@/generated/prisma/client";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { Prisma } from "@/generated/prisma/client";
+
+const POST_STATUSES = new Set<string>(Object.values(PostStatus));
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -8,27 +10,34 @@ export async function GET(req: Request) {
   const page = Number(searchParams.get("page") || 1);
   const limit = Number(searchParams.get("limit") || 20);
   const search = searchParams.get("search") || "";
+  const statusParam = searchParams.get("status") || "";
+  const status = POST_STATUSES.has(statusParam)
+    ? (statusParam as PostStatus)
+    : undefined;
 
   const skip = (page - 1) * limit;
 
-  const where: Prisma.PostWhereInput = search
-    ? {
-        OR: [
-          {
-            title: {
-              contains: search,
-              mode: "insensitive",
+  const where: Prisma.PostWhereInput = {
+    ...(status ? { status } : {}),
+    ...(search
+      ? {
+          OR: [
+            {
+              title: {
+                contains: search,
+                mode: "insensitive",
+              },
             },
-          },
-          {
-            slug: {
-              contains: search,
-              mode: "insensitive",
+            {
+              slug: {
+                contains: search,
+                mode: "insensitive",
+              },
             },
-          },
-        ],
-      }
-    : {};
+          ],
+        }
+      : {}),
+  };
 
   const [docs, total] = await Promise.all([
     prisma.post.findMany({
