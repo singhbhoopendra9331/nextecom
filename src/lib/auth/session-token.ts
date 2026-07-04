@@ -9,7 +9,7 @@ export type SessionPayload = {
 };
 
 function getAuthSecret() {
-  return getEnv("AUTH_SECRET", "dev-auth-secret-change-in-production");
+  return getEnv("AUTH_SECRET");
 }
 
 function toBase64Url(bytes: Uint8Array) {
