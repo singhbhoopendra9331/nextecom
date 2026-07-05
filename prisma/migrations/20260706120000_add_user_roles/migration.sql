@@ -1,0 +1,6 @@
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'EDITOR', 'VIEWER');
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "role" "UserRole" NOT NULL DEFAULT 'EDITOR';
+ALTER TABLE "User" ADD COLUMN "sessionVersion" INTEGER NOT NULL DEFAULT 0;

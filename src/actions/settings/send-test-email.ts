@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 
+import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import { sendMail } from "@/lib/email/send-mail";
 import { logger } from "@/lib/logger";
 import { type SmtpSettings } from "@/lib/settings/constants";
@@ -36,6 +37,11 @@ function getSendFailureMessage(
 }
 
 export async function sendTestEmail(input: { to: string; smtp: SmtpSettings }) {
+  const auth = await authorize("settings:manage");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   const parsed = testEmailSchema.safeParse({ to: input.to.trim() });
 
   if (!parsed.success) {

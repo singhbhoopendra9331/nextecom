@@ -1,15 +1,34 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { axios } from "@/lib/axios";
+import { UserRole } from "@/generated/prisma/client";
+import { getSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/prisma";
 import UsersPageClient from "./page.client";
 import { PageTitle } from "@/components/page-title";
 
+function getAssignableRoles(role?: UserRole) {
+  if (role === UserRole.SUPER_ADMIN) {
+    return [UserRole.ADMIN, UserRole.EDITOR, UserRole.VIEWER];
+  }
+
+  if (role === UserRole.ADMIN) {
+    return [UserRole.EDITOR, UserRole.VIEWER];
+  }
+
+  return [];
+}
 
 export default async function Page() {
-  const users = await axios.get("/api/users");
-  if (!users.data) throw new Error("Failed to fetch users");
-
-  console.log("users >>", users.data);
+  const session = await getSession();
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <div className="min-h-screen p-2 md:p-4 space-y-6">
@@ -18,8 +37,10 @@ export default async function Page() {
           <Link href="/admin/users/create">Add User</Link>
         </Button>
       </PageTitle>
-      {/* user search and listing */}
-      <UsersPageClient users={users.data.docs} />
+      <UsersPageClient
+        users={users}
+        assignableRoles={getAssignableRoles(session?.role)}
+      />
     </div>
   );
 }

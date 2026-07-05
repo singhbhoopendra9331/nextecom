@@ -18,6 +18,7 @@ export default async function AdminDashboardLayout({
   return (
     <SidebarProvider>
       <AppSidebar
+        role={session?.role}
         user={{
           name: session?.name || session?.email || "Admin",
           email: session?.email || "",

@@ -1,8 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@/generated/prisma/client";
+import { requireApiPermission } from "@/lib/auth/require-auth";
 
 export async function GET(req: NextRequest) {
+  const auth = await requireApiPermission("pages:read");
+  if (auth.response) {
+    return auth.response;
+  }
+
   const { searchParams } = req.nextUrl;
 
   const page = Number(searchParams.get("page") || 1);

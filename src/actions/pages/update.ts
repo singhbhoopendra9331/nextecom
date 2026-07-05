@@ -1,5 +1,6 @@
 "use server";
 import { PostStatus } from "@/generated/prisma/client";
+import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import { prisma } from "@/lib/prisma";
 
 type Input = {
@@ -10,6 +11,11 @@ type Input = {
 };
 
 export async function updatePage(id: string, data: Input) {
+  const auth = await authorize("pages:write");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   try {
     if (!id) {
       throw new Error("Page id is required");

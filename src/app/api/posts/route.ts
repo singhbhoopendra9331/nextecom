@@ -1,5 +1,6 @@
 import { PostStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { requireApiPermission } from "@/lib/auth/require-auth";
 import { NextResponse } from "next/server";
 
 const POST_STATUSES = new Set<string>(Object.values(PostStatus));
@@ -14,6 +15,13 @@ export async function GET(req: Request) {
   const status = POST_STATUSES.has(statusParam)
     ? (statusParam as PostStatus)
     : undefined;
+
+  if (status !== PostStatus.PUBLISHED) {
+    const auth = await requireApiPermission("posts:read");
+    if (auth.response) {
+      return auth.response;
+    }
+  }
 
   const skip = (page - 1) * limit;
 

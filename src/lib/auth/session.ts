@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 
+import { UserRole } from "@/generated/prisma/client";
 import {
   encodeSession,
   parseSessionToken,
@@ -13,12 +14,26 @@ export type SessionUser = {
   id: string;
   email: string;
   name: string | null;
+  role: UserRole;
+  sessionVersion: number;
 };
 
 export async function createSession(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      sessionVersion: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   const payload = {
     userId,
     exp: Math.floor(Date.now() / 1000) + SESSION_MAX_AGE,
+    sessionVersion: user.sessionVersion,
   };
 
   const cookieStore = await cookies();
@@ -36,6 +51,17 @@ export async function destroySession() {
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
 
+export async function bumpSessionVersion(userId: string) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      sessionVersion: {
+        increment: 1,
+      },
+    },
+  });
+}
+
 export async function getSession(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -50,12 +76,20 @@ export async function getSession(): Promise<SessionUser | null> {
     return null;
   }
 
-  return prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: payload.userId },
     select: {
       id: true,
       email: true,
       name: true,
+      role: true,
+      sessionVersion: true,
     },
   });
+
+  if (!user || user.sessionVersion !== payload.sessionVersion) {
+    return null;
+  }
+
+  return user;
 }

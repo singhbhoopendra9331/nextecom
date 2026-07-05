@@ -6,16 +6,24 @@ import { useState } from "react";
 import { AppSheet } from "@/components/app-sheet";
 import { DataTable, DataTableColumn } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { User } from "@/generated/prisma/browser";
+import type { AppUserRole } from "@/lib/auth/roles";
+import { USER_ROLE_LABELS } from "@/lib/auth/roles";
 
 import UserForm from "./user-form";
+
+type UserRow = {
+  id: string;
+  name: string | null;
+  email: string;
+  role: AppUserRole;
+};
 
 function UserRowActions({
   user,
   onEdit,
 }: {
-  user: User;
-  onEdit: (user: User) => void;
+  user: UserRow;
+  onEdit: (user: UserRow) => void;
 }) {
   return (
     <Button variant="outline" size="sm" onClick={() => onEdit(user)}>
@@ -24,12 +32,18 @@ function UserRowActions({
   );
 }
 
-const UsersPageClient = ({ users }: { users: User[] }) => {
+const UsersPageClient = ({
+  users,
+  assignableRoles = [],
+}: {
+  users: UserRow[];
+  assignableRoles?: AppUserRole[];
+}) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
 
-  function openEditSheet(user: User) {
+  function openEditSheet(user: UserRow) {
     setSelectedUser(user);
     setOpen(true);
   }
@@ -46,7 +60,7 @@ const UsersPageClient = ({ users }: { users: User[] }) => {
     router.refresh();
   }
 
-  const columns: DataTableColumn<User>[] = [
+  const columns: DataTableColumn<UserRow>[] = [
     {
       id: "name",
       header: "Name",
@@ -54,6 +68,12 @@ const UsersPageClient = ({ users }: { users: User[] }) => {
       cell: (row) => row.name ?? "—",
     },
     { id: "email", header: "Email", accessorKey: "email" },
+    {
+      id: "role",
+      header: "Role",
+      accessorKey: "role",
+      cell: (row) => USER_ROLE_LABELS[row.role],
+    },
     {
       id: "actions",
       header: "Actions",
@@ -77,9 +97,11 @@ const UsersPageClient = ({ users }: { users: User[] }) => {
           <UserForm
             mode="edit"
             userId={selectedUser.id}
+            assignableRoles={assignableRoles}
             initialValues={{
               name: selectedUser.name,
               email: selectedUser.email,
+              role: selectedUser.role,
             }}
             showHeader={false}
             onSuccess={handleEditSuccess}

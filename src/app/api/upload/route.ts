@@ -3,8 +3,14 @@ export const runtime = "nodejs";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import cloudinary from "@/lib/storage/cloudinary";
+import { requireApiPermission } from "@/lib/auth/require-auth";
 
 export async function POST(req: Request) {
+  const auth = await requireApiPermission("media:write");
+  if (auth.response) {
+    return auth.response;
+  }
+
   const formData = await req.formData();
   const file = formData.get("file") as File;
 

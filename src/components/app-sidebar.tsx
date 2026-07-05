@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AudioWaveform } from "lucide-react";
+import type { AppUserRole } from "@/lib/auth/roles";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -13,6 +14,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { data } from "@/data/sidebar-data";
+import { getNavForRole } from "@/lib/auth/filter-nav";
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   user?: {
@@ -20,9 +22,19 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
     email: string;
     avatar: string;
   };
+  role?: AppUserRole;
 };
 
-export function AppSidebar({ user = data.user, ...props }: AppSidebarProps) {
+export function AppSidebar({
+  user = data.user,
+  role,
+  ...props
+}: AppSidebarProps) {
+  const navMain = React.useMemo(
+    () => (role ? getNavForRole(role) : data.navMain),
+    [role]
+  );
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -31,7 +43,7 @@ export function AppSidebar({ user = data.user, ...props }: AppSidebarProps) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />

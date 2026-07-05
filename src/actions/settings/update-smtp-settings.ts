@@ -2,9 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 
+import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import { saveSmtpSettings, type SmtpSettings } from "@/lib/settings";
 
 export async function updateSmtpSettings(data: SmtpSettings) {
+  const auth = await authorize("settings:manage");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   try {
     if (data.enabled) {
       if (!data.host?.trim()) {

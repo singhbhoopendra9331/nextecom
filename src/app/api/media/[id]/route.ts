@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import cloudinary from "@/lib/storage/cloudinary";
+import { requireApiPermission } from "@/lib/auth/require-auth";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -9,6 +10,11 @@ PATCH
 Update metadata (alt, caption, filename etc)
 */
 export async function PATCH(req: Request, { params }: Params) {
+    const auth = await requireApiPermission("media:write");
+    if (auth.response) {
+        return auth.response;
+    }
+
     try {
         const { id } = await params;
         const body = await req.json();
@@ -38,6 +44,11 @@ PUT
 Replace media file
 */
 export async function PUT(req: Request, { params }: Params) {
+    const auth = await requireApiPermission("media:write");
+    if (auth.response) {
+        return auth.response;
+    }
+
     try {
         const { id } = await params;
 
@@ -94,6 +105,11 @@ export async function PUT(req: Request, { params }: Params) {
 }
 
 export async function DELETE(req: Request, { params }: Params) {
+    const auth = await requireApiPermission("media:write");
+    if (auth.response) {
+        return auth.response;
+    }
+
     try {
         const { id } = await params;
 

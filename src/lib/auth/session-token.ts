@@ -6,6 +6,7 @@ import { SESSION_COOKIE_NAME } from "@/constants/index";
 export type SessionPayload = {
   userId: string;
   exp: number;
+  sessionVersion: number;
 };
 
 function getAuthSecret() {
@@ -88,7 +89,12 @@ export async function parseSessionToken(
       new TextDecoder().decode(fromBase64Url(data))
     ) as SessionPayload;
 
-    if (!payload.userId || !payload.exp || payload.exp < Date.now() / 1000) {
+    if (
+      !payload.userId ||
+      payload.sessionVersion === undefined ||
+      !payload.exp ||
+      payload.exp < Date.now() / 1000
+    ) {
       return null;
     }
 

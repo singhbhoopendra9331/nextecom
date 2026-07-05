@@ -1,20 +1,39 @@
 import Link from "next/link";
 
-import { axios } from "@/lib/axios";
+import { prisma } from "@/lib/prisma";
 
 import { Button } from "@/components/ui/button";
 import PagesPageClient from "./page.client";
 import { PageTitle } from "@/components/page-title";
 
-const getPages = async () => {
-  const pages = await axios.get("/api/pages");
-  console.log("pages >>", pages.data);
-  if (!pages.data) throw new Error("Failed to fetch pages");
-  return pages.data;
-}
-
 export default async function Page() {
-  const pages = await getPages();
+  const page = 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
+  const [docs, total] = await Promise.all([
+    prisma.page.findMany({
+      skip,
+      take: limit,
+      orderBy: { updatedAt: "desc" },
+      include: {
+        featuredImage: {
+          select: { id: true, url: true },
+        },
+      },
+    }),
+    prisma.page.count(),
+  ]);
+
+  const pages = {
+    docs,
+    pagination: {
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit),
+    },
+  };
 
   return (
     <div className="min-h-screen p-2 md:p-4 space-y-6">

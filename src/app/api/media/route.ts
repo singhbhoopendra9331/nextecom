@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireApiPermission } from "@/lib/auth/require-auth";
 
 export async function GET(req: Request) {
+  const auth = await requireApiPermission("media:read");
+  if (auth.response) {
+    return auth.response;
+  }
+
   try {
     const { searchParams } = new URL(req.url);
 

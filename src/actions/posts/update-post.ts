@@ -1,6 +1,7 @@
 "use server";
 
 import { PostStatus } from "@/generated/prisma/client";
+import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
@@ -16,6 +17,11 @@ type Input = {
 };
 
 export async function updatePost(id: string, data: Input) {
+  const auth = await authorize("posts:write");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   try {
     if (!id) {
       throw new Error("Post id is required");

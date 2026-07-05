@@ -1,7 +1,13 @@
 import { getAllOptions } from "@/lib/options";
+import { requireApiPermission } from "@/lib/auth/require-auth";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
+    const auth = await requireApiPermission("settings:manage");
+    if (auth.response) {
+        return auth.response;
+    }
+
     const { searchParams } = new URL(req.url)
     try {
         const limit = Number(searchParams.get("limit") || 20)

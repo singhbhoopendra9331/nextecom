@@ -20,10 +20,10 @@ This document describes the strategy, architecture, and how to extend auth safel
 
 ### Non-goals (current scope)
 
-- **No roles or permissions** — any authenticated user can access all admin routes.
 - **No storefront customer auth** — public shop pages are unauthenticated. A future “my account” area is planned separately (see [Roadmap](#roadmap)).
 - **No OAuth / social login**.
 - **No refresh tokens** — sessions expire after a fixed TTL; users sign in again.
+- **No per-permission database tables** — roles use a fixed enum + permission map in code (see [RBAC](#rbac)).
 
 ### Why custom sessions instead of Auth.js?
 
@@ -90,7 +90,7 @@ flowchart TB
 |----------|-------|
 | Name | `admin_session` (`SESSION_COOKIE_NAME`) |
 | Format | `<base64url-payload>.<base64url-hmac-sha256-signature>` |
-| Payload | `{ userId: string, exp: number }` (Unix seconds) |
+| Payload | `{ userId: string, exp: number, sessionVersion: number }` (Unix seconds) |
 | Max age | 7 days |
 | Flags | `httpOnly`, `sameSite: lax`, `secure` in production, `path: /` |
 
@@ -106,8 +106,66 @@ Implementation:
 `getSession()` verifies the cookie, then **loads the user from the database** by `userId`. This means:
 
 - Deleted users lose access on the next request (payload still valid until expiry, but DB lookup returns null).
-- Email/name changes in DB are reflected immediately in the UI.
-- There is no server-side session revocation list; invalidating access for a live session requires changing `AUTH_SECRET` (logs everyone out) or waiting for expiry.
+- Email/name/role changes in DB are reflected immediately in the UI via `getSession()`.
+- **Session revocation:** `sessionVersion` on `User` is embedded in the cookie. When role or password changes, the version is bumped and existing cookies stop working.
+
+---
+
+## RBAC
+
+Authorization is **database-backed**, not token-backed. The cookie only proves identity; permissions come from the user's `role` loaded in `getSession()`.
+
+### Roles
+
+| Role | Typical use |
+|------|-------------|
+| `SUPER_ADMIN` | Full access; first registered user gets this role |
+| `ADMIN` | Manage users, settings, content, logs (read) |
+| `EDITOR` | Create/edit posts, pages, media |
+| `VIEWER` | Read-only access to CMS content |
+
+### Permissions
+
+Defined in `src/lib/auth/permissions.ts`:
+
+| Permission | Roles |
+|------------|-------|
+| `posts:read` | All roles |
+| `posts:write` | SUPER_ADMIN, ADMIN, EDITOR |
+| `pages:read` | All roles |
+| `pages:write` | SUPER_ADMIN, ADMIN, EDITOR |
+| `media:read` | All roles |
+| `media:write` | SUPER_ADMIN, ADMIN, EDITOR |
+| `users:manage` | SUPER_ADMIN, ADMIN |
+| `settings:manage` | SUPER_ADMIN, ADMIN |
+| `logs:read` | SUPER_ADMIN, ADMIN |
+| `logs:manage` | SUPER_ADMIN only |
+
+### Enforcement layers
+
+1. **Route layouts** — `RouteGuard` in section layouts (users, settings, logs, posts, pages, media) redirects to `/admin/forbidden`.
+2. **Server actions** — `authorize(permission)` at the start of every mutation.
+3. **API routes** — `requireApiPermission()` / `requireApiSession()` for admin APIs. Public blog listing keeps `GET /api/posts?status=PUBLISHED` open.
+4. **Sidebar** — nav items filtered by role via `getNavForRole()`.
+
+### Helpers
+
+```ts
+import { authorize, requirePermission } from "@/lib/auth/require-auth";
+import { hasPermission } from "@/lib/auth/permissions";
+
+// In server actions — returns { ok: false, error: "Forbidden" }
+const auth = await authorize("posts:write");
+
+// In layouts — redirects to login or /admin/forbidden
+await requirePermission("users:manage");
+```
+
+### Assigning roles
+
+- **Register:** first user → `SUPER_ADMIN`; others → `EDITOR`.
+- **Admin create/edit user:** SUPER_ADMIN can assign ADMIN/EDITOR/VIEWER; ADMIN can assign EDITOR/VIEWER.
+- Role or password change bumps `sessionVersion` (invalidates existing sessions for that user).
 
 ---
 
@@ -140,14 +198,7 @@ Authenticated users hitting login or register are redirected to `/admin`.
 
 Everything else under `/admin/*` requires a valid session cookie.
 
-Logic lives in `src/proxy.ts`. It must be wired as Next.js middleware:
-
-```ts
-// src/middleware.ts (required for enforcement)
-export { proxy as middleware, config } from "./proxy";
-```
-
-> **Note:** Without `src/middleware.ts`, route protection is not active at the edge. Server actions still enforce auth only where explicitly checked — add middleware before production.
+Logic lives in `src/proxy.ts` (Next.js 16 proxy — no separate `middleware.ts` needed).
 
 ### Post-login redirect
 
@@ -276,11 +327,9 @@ Logout: `logoutAction` from the user menu in `src/components/nav-user.tsx`.
 
 | Item | Recommendation |
 |------|----------------|
-| Middleware not wired | Add `src/middleware.ts` exporting `proxy` |
-| No RBAC | Add `role` on `User` and check in middleware or layout when needed |
 | No rate limiting | Add rate limits on login and reset endpoints (e.g. Upstash or edge counter) |
-| No session revocation | Optional `sessionVersion` on user, include in payload, bump on password change |
 | Open registration | Consider disabling `/admin/register` in production or gating behind invite |
+| Fine-grained DB permissions | Move to permission tables if enum roles are not enough |
 | CSRF | Server actions use Next.js built-in origin check; keep mutations as POST actions only |
 
 ---
@@ -308,11 +357,16 @@ When adding customer auth, prefer:
 | `src/lib/auth/session.ts` | Create, read, destroy session cookie |
 | `src/lib/auth/session-token.ts` | Sign / parse session token |
 | `src/lib/auth/schemas.ts` | Zod validation |
+| `src/lib/auth/roles.ts` | Role constants (client-safe) |
+| `src/lib/auth/permissions.ts` | Permission map and route rules |
+| `src/lib/auth/require-auth.ts` | `authorize`, `requirePermission`, API guards |
+| `src/lib/auth/filter-nav.ts` | Sidebar filtering by role |
 | `src/lib/password.ts` | scrypt hash and verify |
-| `src/proxy.ts` | Admin route guard (middleware) |
+| `src/proxy.ts` | Admin auth gate (Next.js proxy) |
+| `src/components/admin/route-guard.tsx` | Layout permission wrapper |
 | `src/actions/auth/*` | Auth server actions |
 | `src/constants/index.ts` | `SESSION_COOKIE_NAME`, `RESET_TOKEN_TTL_MS` |
-| `prisma/schema.prisma` | `User`, `PasswordResetToken` |
+| `prisma/schema.prisma` | `User` (with `role`, `sessionVersion`), `PasswordResetToken` |
 
 ---
 
@@ -320,7 +374,8 @@ When adding customer auth, prefer:
 
 1. Add or extend a Zod schema in `src/lib/auth/schemas.ts`.
 2. Implement logic as a server action in `src/actions/auth/` (or domain-specific action with `getSession()` guard).
-3. If the route is new and sensitive, update `PUBLIC_ADMIN_PATHS` in `src/proxy.ts` only if it should be public.
-4. For password changes, always use `hashPassword` / `verifyPassword`.
+3. If the route is new and sensitive, add a `RouteGuard` layout and an entry in `ROUTE_RULES` inside `src/lib/auth/permissions.ts`.
+4. Guard the server action with `authorize("your:permission")`.
+5. For password changes, always use `hashPassword` / `verifyPassword` and bump `sessionVersion` when credentials or role change.
 5. Never expose `AUTH_SECRET` or password hashes to the client.
 6. Use `getSession()` in server components/actions when you need the current user — do not trust client-provided user IDs.

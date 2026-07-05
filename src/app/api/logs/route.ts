@@ -1,10 +1,16 @@
 import { queryApplicationLogs } from "@/lib/logs";
 import { LogLevel } from "@/generated/prisma/client";
+import { requireApiPermission } from "@/lib/auth/require-auth";
 import { NextResponse } from "next/server";
 
 const LOG_LEVELS = new Set<string>(Object.values(LogLevel));
 
 export async function GET(req: Request) {
+  const auth = await requireApiPermission("logs:read");
+  if (auth.response) {
+    return auth.response;
+  }
+
   try {
     const { searchParams } = new URL(req.url);
 

@@ -40,6 +40,9 @@ export async function resetPasswordAction(
       where: { id: resetToken.userId },
       data: {
         password: hashPassword(parsed.data.password),
+        sessionVersion: {
+          increment: 1,
+        },
       },
     }),
     prisma.passwordResetToken.delete({

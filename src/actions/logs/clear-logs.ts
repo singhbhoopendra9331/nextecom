@@ -2,14 +2,20 @@
 
 import { revalidatePath } from "next/cache";
 
+import { LogLevel } from "@/generated/prisma/client";
+import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import {
   clearApplicationLogs,
   deleteApplicationLog,
 } from "@/lib/logs";
 import type { AppLogLevel } from "@/lib/logs/constants";
-import { LogLevel } from "@/generated/prisma/client";
 
 export async function deleteLogAction(id: string) {
+  const auth = await authorize("logs:manage");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   try {
     await deleteApplicationLog(id);
     revalidatePath("/admin/logs");
@@ -30,6 +36,11 @@ export async function clearLogsAction(options: {
   level?: AppLogLevel;
   olderThanDays?: number;
 }) {
+  const auth = await authorize("logs:manage");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   try {
     const count = await clearApplicationLogs({
       all: options.all,

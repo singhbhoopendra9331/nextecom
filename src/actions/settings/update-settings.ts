@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import {
   getGlobalSettings,
   saveGlobalSettings,
@@ -9,10 +10,20 @@ import {
 } from "@/lib/settings";
 
 export async function getSettingsAction() {
+  const auth = await authorize("settings:manage");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   return getGlobalSettings();
 }
 
 export async function updateGlobalSettings(data: GlobalSettings) {
+  const auth = await authorize("settings:manage");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   try {
     if (!data.siteTitle?.trim()) {
       throw new Error("Site title is required");

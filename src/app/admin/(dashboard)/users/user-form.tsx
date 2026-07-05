@@ -9,17 +9,28 @@ import { updateUser } from "@/actions/users/update-user";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { AppUserRole } from "@/lib/auth/roles";
+import { USER_ROLE_LABELS } from "@/lib/auth/roles";
 import { toast } from "@/lib/toast";
 
 export type UserFormInitialValues = {
   name?: string | null;
   email?: string;
+  role?: AppUserRole;
 };
 
 type UserFormProps = {
   mode: "create" | "edit";
   userId?: string;
   initialValues?: UserFormInitialValues;
+  assignableRoles?: AppUserRole[];
   onSuccess?: () => void;
   showHeader?: boolean;
 };
@@ -28,12 +39,16 @@ export default function UserForm({
   mode,
   userId,
   initialValues,
+  assignableRoles = [],
   onSuccess,
   showHeader = true,
 }: UserFormProps) {
   const router = useRouter();
   const [name, setName] = useState(initialValues?.name ?? "");
   const [email, setEmail] = useState(initialValues?.email ?? "");
+  const [role, setRole] = useState<AppUserRole>(
+    initialValues?.role ?? assignableRoles[0] ?? "EDITOR"
+  );
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,9 +56,10 @@ export default function UserForm({
   useEffect(() => {
     setName(initialValues?.name ?? "");
     setEmail(initialValues?.email ?? "");
+    setRole(initialValues?.role ?? assignableRoles[0] ?? "EDITOR");
     setPassword("");
     setConfirmPassword("");
-  }, [userId, initialValues?.name, initialValues?.email]);
+  }, [userId, initialValues?.name, initialValues?.email, initialValues?.role, assignableRoles]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -73,6 +89,7 @@ export default function UserForm({
     const payload = {
       name: name.trim() || undefined,
       email: email.trim(),
+      ...(assignableRoles.length > 0 ? { role } : {}),
       ...(password ? { password } : {}),
     };
 
@@ -144,6 +161,24 @@ export default function UserForm({
             required
           />
         </div>
+
+        {assignableRoles.length > 0 ? (
+          <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <Select value={role} onValueChange={(value) => setRole(value as AppUserRole)}>
+              <SelectTrigger id="role" className="w-full">
+                <SelectValue placeholder="Select a role" />
+              </SelectTrigger>
+              <SelectContent>
+                {assignableRoles.map((assignableRole) => (
+                  <SelectItem key={assignableRole} value={assignableRole}>
+                    {USER_ROLE_LABELS[assignableRole]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
 
         <div className="space-y-2">
           <Label htmlFor="password">

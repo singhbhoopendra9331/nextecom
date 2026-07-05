@@ -13,11 +13,20 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
 model User {
   id                  String               @id @default(uuid())
   email               String               @unique
   name                String?
   password            String
+  role                UserRole             @default(EDITOR)
+  sessionVersion      Int                  @default(0)
   posts               Post[]
   passwordResetTokens PasswordResetToken[]
   createdAt           DateTime             @default(now())

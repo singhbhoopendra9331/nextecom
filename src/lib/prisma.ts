@@ -28,11 +28,26 @@ function createPrismaClient() {
   });
 }
 
+function userModelHasField(client: PrismaClient, field: string): boolean {
+  const runtimeDataModel = (
+    client as unknown as {
+      _runtimeDataModel?: {
+        models?: Record<string, { fields?: { name: string }[] }>;
+      };
+    }
+  )._runtimeDataModel;
+
+  const fields = runtimeDataModel?.models?.User?.fields ?? [];
+  return fields.some((item) => item.name === field);
+}
+
 function isValidClient(client: PrismaClient | undefined): client is PrismaClient {
   return Boolean(
     client &&
       typeof (client as unknown as Record<string, unknown>).applicationLog ===
-        "object"
+        "object" &&
+      userModelHasField(client, "sessionVersion") &&
+      userModelHasField(client, "role")
   );
 }
 

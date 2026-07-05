@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { UserRole } from "@/generated/prisma/client";
 import { createSession } from "@/lib/auth/session";
 import { registerSchema } from "@/lib/auth/schemas";
 import { getAppBaseUrl } from "@/lib/email/send-mail";
@@ -25,6 +26,8 @@ export async function registerAction(input: {
   }
 
   const email = parsed.data.email.trim().toLowerCase();
+  const existingUsers = await prisma.user.count();
+  const role = existingUsers === 0 ? UserRole.SUPER_ADMIN : UserRole.EDITOR;
 
   try {
     const user = await prisma.user.create({
@@ -32,8 +35,9 @@ export async function registerAction(input: {
         email,
         name: parsed.data.name?.trim() || null,
         password: hashPassword(parsed.data.password),
+        role,
       },
-      select: { id: true, email: true, name: true },
+      select: { id: true, email: true, name: true, role: true },
     });
 
     await createSession(user.id);

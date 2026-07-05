@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import type { Prisma } from "@/generated/prisma/client";
+import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import { prisma } from "@/lib/prisma";
 import { setOption } from "@/lib/options";
 import {
@@ -23,6 +24,11 @@ export async function createOption(data: {
   value: unknown;
   autoload: boolean;
 }) {
+  const auth = await authorize("settings:manage");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   try {
     const key = data.key.trim();
 
@@ -59,6 +65,11 @@ export async function updateOption(data: {
   value: unknown;
   autoload: boolean;
 }) {
+  const auth = await authorize("settings:manage");
+  if (!auth.ok) {
+    return authErrorResult(auth);
+  }
+
   try {
     const key = data.key.trim();
 
