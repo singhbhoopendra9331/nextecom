@@ -11,12 +11,24 @@ export default async function EditPostPage({
 }) {
   const { id } = await params;
 
-  const post = await prisma.post.findUnique({
-    where: { id },
-    include: {
-      featuredImage: true,
-    },
-  });
+  const [post, tags, categories] = await Promise.all([
+    prisma.post.findUnique({
+      where: { id },
+      include: {
+        featuredImage: true,
+        tags: { select: { id: true } },
+        categories: { select: { id: true } },
+      },
+    }),
+    prisma.tag.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.category.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   if (!post) {
     notFound();
@@ -26,6 +38,8 @@ export default async function EditPostPage({
     <PostForm
       mode="edit"
       postId={post.id}
+      tags={tags}
+      categories={categories}
       initialValues={{
         title: post.title,
         content: post.content,
@@ -39,6 +53,8 @@ export default async function EditPostPage({
               originalName: post.featuredImage.originalName,
             }
           : null,
+        tagIds: post.tags.map((tag) => tag.id),
+        categoryIds: post.categories.map((category) => category.id),
       }}
     />
   );

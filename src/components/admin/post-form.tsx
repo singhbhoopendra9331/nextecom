@@ -10,6 +10,7 @@ import Editor from "@/components/editor";
 import { MediaPicker } from "@/components/media-picker";
 import { AppSelect, type SelectOption } from "@/components/select";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { PostStatus } from "@/generated/prisma/enums";
 import { axios } from "@/lib/axios";
@@ -27,6 +28,11 @@ type FeaturedImage = {
   originalName: string;
 };
 
+type TaxonomyOption = {
+  id: string;
+  name: string;
+};
+
 export type PostFormInitialValues = {
   title?: string;
   content?: unknown;
@@ -34,13 +40,65 @@ export type PostFormInitialValues = {
   status?: PostStatus;
   featuredImageId?: string | null;
   featuredImage?: FeaturedImage | null;
+  tagIds?: string[];
+  categoryIds?: string[];
 };
 
 type PostFormProps = {
   mode: "create" | "edit";
   postId?: string;
   initialValues?: PostFormInitialValues;
+  tags?: TaxonomyOption[];
+  categories?: TaxonomyOption[];
 };
+
+function CheckboxGroupField({
+  label,
+  options,
+  value,
+  onChange,
+  emptyMessage,
+}: {
+  label: string;
+  options: TaxonomyOption[];
+  value: string[];
+  onChange: (value: string[]) => void;
+  emptyMessage?: string;
+}) {
+  function toggle(id: string) {
+    onChange(
+      value.includes(id)
+        ? value.filter((item) => item !== id)
+        : [...value, id]
+    );
+  }
+
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-medium">{label}</label>
+      {options.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          {emptyMessage ?? "None available."}
+        </p>
+      ) : (
+        <div className="max-h-40 space-y-2 overflow-y-auto rounded-md border p-3">
+          {options.map((option) => (
+            <label
+              key={option.id}
+              className="flex cursor-pointer items-center gap-2 text-sm"
+            >
+              <Checkbox
+                checked={value.includes(option.id)}
+                onCheckedChange={() => toggle(option.id)}
+              />
+              {option.name}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const statusOptions: SelectOption[] = [
   { value: PostStatus.DRAFT, label: "Draft" },
@@ -52,6 +110,8 @@ export default function PostForm({
   mode,
   postId,
   initialValues,
+  tags = [],
+  categories = [],
 }: PostFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState(initialValues?.title ?? "");
@@ -68,9 +128,18 @@ export default function PostForm({
   const [status, setStatus] = useState<PostStatus>(
     initialValues?.status ?? PostStatus.DRAFT
   );
+  const [tagIds, setTagIds] = useState<string[]>(initialValues?.tagIds ?? []);
+  const [categoryIds, setCategoryIds] = useState<string[]>(
+    initialValues?.categoryIds ?? []
+  );
   const [authors, setAuthors] = useState<SelectOption[]>([]);
   const [isLoadingAuthors, setIsLoadingAuthors] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setTagIds(initialValues?.tagIds ?? []);
+    setCategoryIds(initialValues?.categoryIds ?? []);
+  }, [postId, initialValues?.tagIds, initialValues?.categoryIds]);
 
   useEffect(() => {
     axios
@@ -105,6 +174,8 @@ export default function PostForm({
       authorId,
       status,
       featuredImageId,
+      tags: tagIds,
+      categories: categoryIds,
     };
 
     const res =
@@ -176,6 +247,22 @@ export default function PostForm({
             options={statusOptions}
             value={status}
             onValueChange={(value) => setStatus(value as PostStatus)}
+          />
+
+          <CheckboxGroupField
+            label="Tags"
+            options={tags}
+            value={tagIds}
+            onChange={setTagIds}
+            emptyMessage="No tags yet. Add tags from the Tags page."
+          />
+
+          <CheckboxGroupField
+            label="Categories"
+            options={categories}
+            value={categoryIds}
+            onChange={setCategoryIds}
+            emptyMessage="No categories yet. Add categories from the Categories page."
           />
 
           <div>
