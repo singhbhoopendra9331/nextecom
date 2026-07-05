@@ -17,6 +17,11 @@ export {
   type SelectOption,
   type SelectOptionGroup,
 } from "./select-field";
+export {
+  MultiSelectField,
+  type MultiSelectFieldProps,
+  type MultiSelectOption,
+} from "./multi-select-field";
 export { TextField, TextFieldInner, type TextFieldProps } from "./text-field";
 export { TextareaField, type TextareaFieldProps } from "./textarea-field";
 export {

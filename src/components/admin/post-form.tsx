@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { createPost } from "@/actions/posts/create-post";
 import { updatePost } from "@/actions/posts/update-post";
 import Editor from "@/components/editor";
+import { MultiSelectField } from "@/components/form";
 import { MediaPicker } from "@/components/media-picker";
 import { AppSelect, type SelectOption } from "@/components/select";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { PostStatus } from "@/generated/prisma/enums";
 import { axios } from "@/lib/axios";
@@ -52,54 +52,6 @@ type PostFormProps = {
   categories?: TaxonomyOption[];
 };
 
-function CheckboxGroupField({
-  label,
-  options,
-  value,
-  onChange,
-  emptyMessage,
-}: {
-  label: string;
-  options: TaxonomyOption[];
-  value: string[];
-  onChange: (value: string[]) => void;
-  emptyMessage?: string;
-}) {
-  function toggle(id: string) {
-    onChange(
-      value.includes(id)
-        ? value.filter((item) => item !== id)
-        : [...value, id]
-    );
-  }
-
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-medium">{label}</label>
-      {options.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {emptyMessage ?? "None available."}
-        </p>
-      ) : (
-        <div className="max-h-40 space-y-2 overflow-y-auto rounded-md border p-3">
-          {options.map((option) => (
-            <label
-              key={option.id}
-              className="flex cursor-pointer items-center gap-2 text-sm"
-            >
-              <Checkbox
-                checked={value.includes(option.id)}
-                onCheckedChange={() => toggle(option.id)}
-              />
-              {option.name}
-            </label>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 const statusOptions: SelectOption[] = [
   { value: PostStatus.DRAFT, label: "Draft" },
   { value: PostStatus.PUBLISHED, label: "Published" },
@@ -135,6 +87,20 @@ export default function PostForm({
   const [authors, setAuthors] = useState<SelectOption[]>([]);
   const [isLoadingAuthors, setIsLoadingAuthors] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const tagOptions = useMemo(
+    () => tags.map((tag) => ({ value: tag.id, label: tag.name })),
+    [tags]
+  );
+
+  const categoryOptions = useMemo(
+    () =>
+      categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      })),
+    [categories]
+  );
 
   useEffect(() => {
     setTagIds(initialValues?.tagIds ?? []);
@@ -249,20 +215,22 @@ export default function PostForm({
             onValueChange={(value) => setStatus(value as PostStatus)}
           />
 
-          <CheckboxGroupField
+          <MultiSelectField
             label="Tags"
-            options={tags}
+            options={tagOptions}
             value={tagIds}
             onChange={setTagIds}
             emptyMessage="No tags yet. Add tags from the Tags page."
+            placeholder="Select tags..."
           />
 
-          <CheckboxGroupField
+          <MultiSelectField
             label="Categories"
-            options={categories}
+            options={categoryOptions}
             value={categoryIds}
             onChange={setCategoryIds}
             emptyMessage="No categories yet. Add categories from the Categories page."
+            placeholder="Select categories..."
           />
 
           <div>
