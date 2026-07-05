@@ -22,9 +22,10 @@ import {
 import { toast } from "@/lib/toast";
 
 import GlobalSettingsForm from "./global-settings-form";
+import RedirectsSettingsForm from "./redirects-settings-form";
 import SmtpSettingsForm from "./smtp-settings-form";
-import { GlobalSettings, SmtpSettings } from "@/types/settings";
-import { GLOBAL_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
+import { GlobalSettings, RedirectsSettings, SmtpSettings } from "@/types/settings";
+import { GLOBAL_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
 
 export type OptionRow = {
   id: string;
@@ -63,6 +64,15 @@ export default function OptionForm({ mode, option, onSuccess }: OptionFormProps)
     return (
       <SmtpSettingsForm
         initialValues={option.value as Partial<SmtpSettings>}
+        onSuccess={onSuccess}
+      />
+    );
+  }
+
+  if (mode === "edit" && option?.key === REDIRECTS_SETTINGS_KEY) {
+    return (
+      <RedirectsSettingsForm
+        initialValues={option.value as Partial<RedirectsSettings>}
         onSuccess={onSuccess}
       />
     );

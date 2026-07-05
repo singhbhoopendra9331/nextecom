@@ -21,3 +21,17 @@ export type SmtpSettings = {
   fromName: string;
   encryption: SmtpEncryption;
 };
+
+export type RedirectType = 301 | 302;
+
+export type RedirectRule = {
+  id: string;
+  from: string;
+  to: string;
+  type: RedirectType;
+  enabled: boolean;
+};
+
+export type RedirectsSettings = {
+  rules: RedirectRule[];
+};

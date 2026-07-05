@@ -2,10 +2,12 @@ import { getOption, setOption } from "@/lib/options";
 
 import {
   DEFAULT_GLOBAL_SETTINGS,
-  DEFAULT_SMTP_SETTINGS, 
+  DEFAULT_REDIRECTS_SETTINGS,
+  DEFAULT_SMTP_SETTINGS,
 } from "@/lib/settings/constants";
-import { GLOBAL_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
-import { GlobalSettings, SmtpSettings } from "@/types/settings";
+import { GLOBAL_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
+import { GlobalSettings, RedirectsSettings, SmtpSettings } from "@/types/settings";
+import { invalidateRedirectsCache, parseRedirectsSettings } from "@/lib/redirects";
 
 export async function getGlobalSettings(): Promise<GlobalSettings> {
   const stored = await getOption<Partial<GlobalSettings>>(GLOBAL_SETTINGS_KEY);
@@ -33,10 +35,21 @@ export async function saveSmtpSettings(settings: SmtpSettings) {
   await setOption(SMTP_SETTINGS_KEY, settings);
 }
 
+export async function getRedirectsSettings(): Promise<RedirectsSettings> {
+  const stored = await getOption<Partial<RedirectsSettings>>(REDIRECTS_SETTINGS_KEY);
+  return parseRedirectsSettings(stored);
+}
+
+export async function saveRedirectsSettings(settings: RedirectsSettings) {
+  await setOption(REDIRECTS_SETTINGS_KEY, settings);
+  invalidateRedirectsCache();
+}
+
 export async function ensureDefaultOptions() {
-  const [globalSettings, smtpSettings] = await Promise.all([
+  const [globalSettings, smtpSettings, redirectsSettings] = await Promise.all([
     getOption(GLOBAL_SETTINGS_KEY),
     getOption(SMTP_SETTINGS_KEY),
+    getOption(REDIRECTS_SETTINGS_KEY),
   ]);
 
   await Promise.all([
@@ -46,5 +59,8 @@ export async function ensureDefaultOptions() {
     smtpSettings
       ? Promise.resolve()
       : setOption(SMTP_SETTINGS_KEY, DEFAULT_SMTP_SETTINGS),
+    redirectsSettings
+      ? Promise.resolve()
+      : setOption(REDIRECTS_SETTINGS_KEY, DEFAULT_REDIRECTS_SETTINGS),
   ]);
 }

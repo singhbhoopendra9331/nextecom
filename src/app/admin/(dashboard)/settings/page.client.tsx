@@ -13,7 +13,7 @@ import {
   formatOptionValueLabel,
   formatOptionValuePreview,
 } from "@/lib/settings/option-value";
-import { GLOBAL_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
+import { GLOBAL_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
 import OptionForm, { type OptionRow } from "./option-form";
 
 function getSheetTitle(
@@ -30,6 +30,10 @@ function getSheetTitle(
 
   if (option?.key === SMTP_SETTINGS_KEY) {
     return "Edit SMTP Settings";
+  }
+
+  if (option?.key === REDIRECTS_SETTINGS_KEY) {
+    return "Edit Redirects";
   }
 
   return "Edit Option";
@@ -154,7 +158,11 @@ export default function SettingsPageClient({
         open={open}
         onOpenChange={handleSheetOpenChange}
         title={getSheetTitle(mode, selectedOption)}
-        width="w-[520px]"
+        width={
+          selectedOption?.key === REDIRECTS_SETTINGS_KEY
+            ? "w-[720px]"
+            : "w-[520px]"
+        }
       >
         {(mode === "create" || selectedOption) && (
           <OptionForm
