@@ -48,6 +48,8 @@ npx prisma generate
 npx prisma generate
 
 npx prisma migrate deploy
+
+npx prisma studio
 ```
 
 ## Auth Strategy

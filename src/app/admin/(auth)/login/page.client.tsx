@@ -18,6 +18,7 @@ export default function LoginPageClient() {
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next") ?? undefined;
   const resetSuccess = searchParams.get("reset") === "success";
+  const accountDeleted = searchParams.get("deleted") === "1";
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -64,6 +65,14 @@ export default function LoginPageClient() {
         </div>
       }
     >
+      {accountDeleted ? (
+        <Alert>
+          <AlertDescription>
+            Your account has been deleted.
+          </AlertDescription>
+        </Alert>
+      ) : null}
+
       {resetSuccess ? (
         <Alert>
           <AlertDescription>
