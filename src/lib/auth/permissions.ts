@@ -28,6 +28,7 @@ const ROUTE_RULES: { prefix: string; permission: Permission }[] = [
   { prefix: "/admin/logs", permission: "logs:read" },
   { prefix: "/admin/posts", permission: "posts:read" },
   { prefix: "/admin/tags", permission: "posts:read" },
+  { prefix: "/admin/categories", permission: "posts:read" },
   { prefix: "/admin/pages", permission: "pages:read" },
   { prefix: "/admin/media", permission: "media:read" },
 ];
