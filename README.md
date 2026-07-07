@@ -45,8 +45,6 @@ npx prisma migrate dev --name add_pages_table
 # generate client
 npx prisma generate
 
-npx prisma generate
-
 npx prisma migrate deploy
 
 npx prisma studio
