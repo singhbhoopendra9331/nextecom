@@ -60,6 +60,7 @@ export async function GET(req: Request) {
         featuredImage: true,
         tags: true,
         categories: true,
+        meta: true,
       },
     }),
     prisma.post.count({ where }),

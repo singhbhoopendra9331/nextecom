@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { MoreHorizontal, Pencil, Search, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { FileSearch, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -20,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Page, PostStatus } from "@/generated/prisma/browser";
+import { axios } from "@/lib/axios";
 import {
   hasSeoConfigured,
   metaToSeo,
@@ -71,11 +71,12 @@ function statusVariant(status: PostStatus) {
 function PageRowActions({
   page,
   onEditSeo,
+  onChanged,
 }: {
   page: PageRow;
   onEditSeo: (page: PageRow) => void;
+  onChanged: () => void;
 }) {
-  const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
@@ -91,7 +92,7 @@ function PageRowActions({
 
     if (res.success) {
       toast.success("Page deleted successfully");
-      router.refresh();
+      onChanged();
       return;
     }
 
@@ -114,7 +115,7 @@ function PageRowActions({
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onEditSeo(page)}>
-          <Search className="text-muted-foreground" />
+          <FileSearch className="text-muted-foreground" />
           Edit SEO
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -144,8 +145,38 @@ const PagesPageClient = ({
     };
   };
 }) => {
-  const router = useRouter();
+  const [data, setData] = useState(initialData);
+  const [search, setSearch] = useState("");
+  const [isPending, startTransition] = useTransition();
   const [seoDialogPage, setSeoDialogPage] = useState<PageRow | null>(null);
+  const skipSearchEffect = useRef(true);
+
+  const fetchPages = useCallback((page: number, searchTerm: string) => {
+    startTransition(async () => {
+      const response = await axios.get("/api/pages", {
+        params: {
+          page,
+          limit: data.pagination.limit,
+          search: searchTerm.trim(),
+        },
+      });
+
+      setData(response.data);
+    });
+  }, [data.pagination.limit]);
+
+  useEffect(() => {
+    if (skipSearchEffect.current) {
+      skipSearchEffect.current = false;
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      fetchPages(1, search);
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [search, fetchPages]);
 
   const columns: DataTableColumn<PageRow>[] = [
     {
@@ -187,7 +218,11 @@ const PagesPageClient = ({
       id: "actions",
       header: "Actions",
       cell: (row) => (
-        <PageRowActions page={row} onEditSeo={setSeoDialogPage} />
+        <PageRowActions
+          page={row}
+          onEditSeo={setSeoDialogPage}
+          onChanged={() => fetchPages(data.pagination.page, search)}
+        />
       ),
     },
   ];
@@ -195,10 +230,21 @@ const PagesPageClient = ({
   return (
     <>
       <DataTable
+        showHeader={false}
         columns={columns}
-        data={initialData.docs}
+        data={data.docs}
         getRowKey={(row) => row.id}
-        emptyMessage="No pages yet. Create your first page."
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search pages..."
+        isLoading={isPending}
+        pagination={data.pagination}
+        onPageChange={(page) => fetchPages(page, search)}
+        emptyMessage={
+          search.trim()
+            ? "No pages match your search."
+            : "No pages yet. Create your first page."
+        }
       />
 
       {seoDialogPage ? (
@@ -212,7 +258,7 @@ const PagesPageClient = ({
           contentTitle={seoDialogPage.title}
           initialSeo={metaToSeo(seoDialogPage.meta ?? [])}
           onSave={(seo) => updatePageSeo(seoDialogPage.id, seo)}
-          onSaved={() => router.refresh()}
+          onSaved={() => fetchPages(data.pagination.page, search)}
         />
       ) : null}
     </>

@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
         featuredImage: {
           select: { id: true, url: true },
         },
+        meta: true,
       },
     }),
     prisma.page.count({ where }),

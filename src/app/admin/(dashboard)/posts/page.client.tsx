@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Eye, MoreHorizontal, Pencil, Search, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { Eye, FileSearch, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -20,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Post } from "@/generated/prisma/browser";
+import { axios } from "@/lib/axios";
 import {
   hasSeoConfigured,
   metaToSeo,
@@ -64,11 +64,12 @@ function SeoSummary({ seo, fallbackTitle }: { seo: SeoInput; fallbackTitle: stri
 function PostRowActions({
   post,
   onEditSeo,
+  onChanged,
 }: {
   post: PostRow;
   onEditSeo: (post: PostRow) => void;
+  onChanged: () => void;
 }) {
-  const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
@@ -84,7 +85,7 @@ function PostRowActions({
 
     if (res.success) {
       toast.success("Post deleted successfully");
-      router.refresh();
+      onChanged();
       return;
     }
 
@@ -117,7 +118,7 @@ function PostRowActions({
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onEditSeo(post)}>
-          <Search className="text-muted-foreground" />
+          <FileSearch className="text-muted-foreground" />
           Edit SEO
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -147,8 +148,38 @@ const PostClient = ({
     };
   };
 }) => {
-  const router = useRouter();
+  const [data, setData] = useState(initialData);
+  const [search, setSearch] = useState("");
+  const [isPending, startTransition] = useTransition();
   const [seoDialogPost, setSeoDialogPost] = useState<PostRow | null>(null);
+  const skipSearchEffect = useRef(true);
+
+  const fetchPosts = useCallback((page: number, searchTerm: string) => {
+    startTransition(async () => {
+      const response = await axios.get("/api/posts", {
+        params: {
+          page,
+          limit: data.pagination.limit,
+          search: searchTerm.trim(),
+        },
+      });
+
+      setData(response.data);
+    });
+  }, [data.pagination.limit]);
+
+  useEffect(() => {
+    if (skipSearchEffect.current) {
+      skipSearchEffect.current = false;
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      fetchPosts(1, search);
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [search, fetchPosts]);
 
   const columns: DataTableColumn<PostRow>[] = [
     {
@@ -208,7 +239,11 @@ const PostClient = ({
       id: "actions",
       header: "Actions",
       cell: (row) => (
-        <PostRowActions post={row} onEditSeo={setSeoDialogPost} />
+        <PostRowActions
+          post={row}
+          onEditSeo={setSeoDialogPost}
+          onChanged={() => fetchPosts(data.pagination.page, search)}
+        />
       ),
     },
   ];
@@ -216,9 +251,21 @@ const PostClient = ({
   return (
     <>
       <DataTable
+        showHeader={false}
         columns={columns}
-        data={initialData.docs}
+        data={data.docs}
         getRowKey={(row) => row.id}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search posts..."
+        isLoading={isPending}
+        pagination={data.pagination}
+        onPageChange={(page) => fetchPosts(page, search)}
+        emptyMessage={
+          search.trim()
+            ? "No posts match your search."
+            : "No posts yet. Create your first post."
+        }
       />
 
       {seoDialogPost ? (
@@ -233,7 +280,7 @@ const PostClient = ({
           initialSeo={metaToSeo(seoDialogPost.meta ?? [])}
           titlePlaceholder="Leave blank to use the post title"
           onSave={(seo) => updatePostSeo(seoDialogPost.id, seo)}
-          onSaved={() => router.refresh()}
+          onSaved={() => fetchPosts(data.pagination.page, search)}
         />
       ) : null}
     </>
