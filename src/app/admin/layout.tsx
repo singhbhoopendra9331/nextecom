@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import "../globals.css";
 import { AppToaster } from "@/components/app-toaster";
+import { ADMIN_DEFAULT_METADATA } from "@/lib/admin/metadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,10 +15,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Admin Dashboard",
-  description: "Admin Dashboard",
-};
+export const metadata = ADMIN_DEFAULT_METADATA;
 
 export default function AdminRootLayout({
   children,

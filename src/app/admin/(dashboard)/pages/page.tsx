@@ -3,8 +3,11 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 import { Button } from "@/components/ui/button";
-import PagesPageClient from "./page.client";
 import { PageTitle } from "@/components/page-title";
+import { createAdminMetadata } from "@/lib/admin/metadata";
+import PagesPageClient from "./page.client";
+
+export const metadata = createAdminMetadata("Pages", "Manage your pages.");
 
 export default async function Page() {
   const page = 1;

@@ -1,7 +1,10 @@
 import { UserRole } from "@/generated/prisma/client";
 import { getSession } from "@/lib/auth/session";
+import { createAdminMetadata } from "@/lib/admin/metadata";
 
 import UserForm from "../user-form";
+
+export const metadata = createAdminMetadata("Create User", "Add a new user account.");
 
 function getAssignableRoles(role?: UserRole) {
   if (role === UserRole.SUPER_ADMIN) {

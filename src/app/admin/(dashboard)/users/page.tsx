@@ -5,6 +5,9 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import UsersPageClient from "./page.client";
 import { PageTitle } from "@/components/page-title";
+import { createAdminMetadata } from "@/lib/admin/metadata";
+
+export const metadata = createAdminMetadata("Users", "Manage user accounts.");
 
 function getAssignableRoles(role?: UserRole) {
   if (role === UserRole.SUPER_ADMIN) {

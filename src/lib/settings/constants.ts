@@ -1,8 +1,8 @@
-import { GLOBAL_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
+import { ADMIN_SITE_NAME, GLOBAL_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
 import { GlobalSettings, RedirectsSettings, SmtpSettings } from "@/types/settings";
 
 export const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
-  siteTitle: "NextEcom",
+  siteTitle: ADMIN_SITE_NAME,
   siteTagline: "",
   contactEmail: "",
   contactPhone: "",

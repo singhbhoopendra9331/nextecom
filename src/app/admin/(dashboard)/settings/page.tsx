@@ -1,8 +1,14 @@
 import { getAllOptions } from "@/lib/options";
 import { ensureDefaultOptions } from "@/lib/settings";
+import { createAdminMetadata } from "@/lib/admin/metadata";
 
 import SettingsPageClient from "./page.client";
 import { PageTitle } from "@/components/page-title";
+
+export const metadata = createAdminMetadata(
+  "Settings",
+  "Manage site and application settings."
+);
 
 export default async function SettingsPage() {
   await ensureDefaultOptions();

@@ -1,6 +1,12 @@
 import { queryApplicationLogs } from "@/lib/logs";
+import { createAdminMetadata } from "@/lib/admin/metadata";
 
 import LogsPageClient from "./page.client";
+
+export const metadata = createAdminMetadata(
+  "Logs",
+  "View application logs and errors."
+);
 
 export default async function LogsPage() {
   const initialData = await queryApplicationLogs({

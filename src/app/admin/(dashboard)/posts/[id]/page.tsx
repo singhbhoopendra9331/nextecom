@@ -1,9 +1,29 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { prisma } from "@/lib/prisma";
+import { createAdminMetadata } from "@/lib/admin/metadata";
 import { metaToSeo } from "@/lib/meta/seo";
 
 import PostForm from "@/components/admin/post-form";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const post = await prisma.post.findUnique({
+    where: { id },
+    select: { title: true },
+  });
+
+  if (!post) {
+    return createAdminMetadata("Edit Post", "Edit a blog post.");
+  }
+
+  return createAdminMetadata(`Edit Post: ${post.title}`, `Edit "${post.title}".`);
+}
 
 export default async function EditPostPage({
   params,

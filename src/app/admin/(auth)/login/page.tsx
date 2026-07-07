@@ -1,6 +1,10 @@
 import { Suspense } from "react";
 
+import { createAdminMetadata } from "@/lib/admin/metadata";
+
 import LoginPageClient from "./page.client";
+
+export const metadata = createAdminMetadata("Login", "Sign in to the admin dashboard.");
 
 export default function LoginPage() {
   return (

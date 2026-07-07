@@ -20,7 +20,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getApplicationStats } from "@/lib/dashboard-stats";
+import { createAdminMetadata } from "@/lib/admin/metadata";
 import { PageTitle } from "@/components/page-title";
+
+export const metadata = createAdminMetadata(
+  "Dashboard",
+  "Application overview and key metrics."
+);
 
 type StatCardProps = {
   title: string;

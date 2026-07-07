@@ -6,3 +6,5 @@ export const BLOGS_PER_PAGE = 9;
 
 /* 1 hour */
 export const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+
+export const ADMIN_SITE_NAME = "NextEcom";

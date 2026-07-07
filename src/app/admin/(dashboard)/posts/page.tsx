@@ -3,6 +3,9 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import PostPageClient from "./page.client";
 import { PageTitle } from "@/components/page-title";
+import { createAdminMetadata } from "@/lib/admin/metadata";
+
+export const metadata = createAdminMetadata("Posts", "Manage your posts.");
 
 export default async function Page() {
   const page = 1;

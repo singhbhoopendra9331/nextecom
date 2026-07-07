@@ -4,7 +4,10 @@ import { prisma } from "@/lib/prisma";
 
 import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/page-title";
+import { createAdminMetadata } from "@/lib/admin/metadata";
 import MediaPageClient from "./page.client";
+
+export const metadata = createAdminMetadata("Media", "Manage your media library.");
 
 export default async function Page() {
   const page = 1;

@@ -1,6 +1,12 @@
 import { AuthShell } from "@/components/admin/auth-shell";
 import { Button } from "@/components/ui/button";
+import { createAdminMetadata } from "@/lib/admin/metadata";
 import Link from "next/link";
+
+export const metadata = createAdminMetadata(
+  "Access Denied",
+  "You do not have permission to view this page."
+);
 
 export default function ForbiddenPage() {
   return (

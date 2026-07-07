@@ -4,8 +4,14 @@ import { getPasswordResetToken } from "@/actions/auth/reset-password";
 import { AuthShell } from "@/components/admin/auth-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { createAdminMetadata } from "@/lib/admin/metadata";
 
 import ResetPasswordTokenPageClient from "./page.client";
+
+export const metadata = createAdminMetadata(
+  "Set New Password",
+  "Choose a new password for your account."
+);
 
 export default async function ResetPasswordTokenPage({
   params,

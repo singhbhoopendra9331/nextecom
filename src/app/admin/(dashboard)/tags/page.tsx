@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { PageTitle } from "@/components/page-title";
+import { createAdminMetadata } from "@/lib/admin/metadata";
 
 import TagsPageClient from "./page.client";
+
+export const metadata = createAdminMetadata("Tags", "Manage post tags.");
 
 export default async function Page() {
   const tags = await prisma.tag.findMany({
