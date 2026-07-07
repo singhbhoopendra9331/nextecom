@@ -14,6 +14,8 @@ export async function sendMail({
   subject,
   text,
   html,
+  from,
+  replyTo,
   smtp: smtpOverride,
 }: SendMailInput): Promise<SendMailResult> {
   const smtp = smtpOverride ?? (await getSmtpSettings());
@@ -23,7 +25,9 @@ export async function sendMail({
     return { sent: false, reason: "smtp_disabled" };
   }
 
-  if (!smtp.host || !smtp.fromEmail) {
+  const fromEmail = from ?? smtp.fromEmail;
+
+  if (!smtp.host || !fromEmail) {
     logger.warn("[email] SMTP misconfigured; message not sent:", {
       to,
       subject,
@@ -47,10 +51,11 @@ export async function sendMail({
 
   try {
     await transporter.sendMail({
-      from: smtp.fromName
-        ? `${smtp.fromName} <${smtp.fromEmail}>`
-        : smtp.fromEmail,
+      from: smtp.fromName && !from
+        ? `${smtp.fromName} <${fromEmail}>`
+        : fromEmail,
       to,
+      replyTo,
       subject,
       text,
       html,

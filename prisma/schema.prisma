@@ -187,3 +187,38 @@ model ApplicationLog {
   @@index([source])
   @@map("application_logs")
 }
+
+enum FormStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Form {
+  id          String           @id @default(uuid())
+  title       String
+  slug        String           @unique
+  status      FormStatus       @default(ACTIVE)
+  fields      Json
+  email       Json?
+  submit      Json
+  submissions FormSubmission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("forms")
+}
+
+model FormSubmission {
+  id        String   @id @default(uuid())
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  data      Json
+  ip        String?
+  source    String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([formId])
+  @@index([createdAt])
+  @@map("form_submissions")
+}

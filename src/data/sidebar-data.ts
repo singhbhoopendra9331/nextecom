@@ -77,6 +77,10 @@ export const data = {
                     url: "/admin/posts",
                 },
                 {
+                    title: "Forms",
+                    url: "/admin/forms",
+                },
+                {
                     title: "Media Library",
                     url: "/admin/media",
                 },

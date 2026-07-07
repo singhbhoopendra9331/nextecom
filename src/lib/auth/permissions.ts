@@ -12,6 +12,8 @@ export const PERMISSIONS = {
   "posts:write": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
   "pages:read": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR, UserRole.VIEWER],
   "pages:write": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
+  "forms:read": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR, UserRole.VIEWER],
+  "forms:write": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
   "media:read": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR, UserRole.VIEWER],
   "media:write": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
   "users:manage": [UserRole.SUPER_ADMIN, UserRole.ADMIN],
@@ -30,6 +32,7 @@ const ROUTE_RULES: { prefix: string; permission: Permission }[] = [
   { prefix: "/admin/tags", permission: "posts:read" },
   { prefix: "/admin/categories", permission: "posts:read" },
   { prefix: "/admin/pages", permission: "pages:read" },
+  { prefix: "/admin/forms", permission: "forms:read" },
   { prefix: "/admin/media", permission: "media:read" },
 ];
 

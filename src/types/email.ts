@@ -5,5 +5,7 @@ export interface SendMailInput {
   subject: string;
   text: string;
   html?: string;
+  from?: string;
+  replyTo?: string;
   smtp?: SmtpSettings;
 }
