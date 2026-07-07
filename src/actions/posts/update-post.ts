@@ -2,6 +2,7 @@
 
 import { PostStatus } from "@/generated/prisma/client";
 import { authErrorResult, authorize } from "@/lib/auth/require-auth";
+import { syncSeoMeta, type SeoInput } from "@/lib/meta/seo";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
@@ -14,6 +15,7 @@ type Input = {
   status?: PostStatus;
   tags?: string[];
   categories?: string[];
+  seo?: SeoInput;
 };
 
 export async function updatePost(id: string, data: Input) {
@@ -40,30 +42,36 @@ export async function updatePost(id: string, data: Input) {
       strict: true,
     });
 
-    const post = await prisma.post.update({
-      where: { id },
-      data: {
-        title: data.title,
-        slug,
-        content: Array.isArray(data.content) ? data.content : [],
-        authorId: data.authorId,
-        featuredImageId: data.featuredImageId ?? null,
-        status: data.status ?? PostStatus.DRAFT,
-        tags: data.tags
-          ? {
-              set: data.tags.map((tagId) => ({ id: tagId })),
-            }
-          : undefined,
-        categories: data.categories
-          ? {
-              set: data.categories.map((categoryId) => ({ id: categoryId })),
-            }
-          : undefined,
-      },
-      include: {
-        featuredImage: true,
-        author: true,
-      },
+    const post = await prisma.$transaction(async (tx) => {
+      const updated = await tx.post.update({
+        where: { id },
+        data: {
+          title: data.title,
+          slug,
+          content: Array.isArray(data.content) ? data.content : [],
+          authorId: data.authorId,
+          featuredImageId: data.featuredImageId ?? null,
+          status: data.status ?? PostStatus.DRAFT,
+          tags: data.tags
+            ? {
+                set: data.tags.map((tagId) => ({ id: tagId })),
+              }
+            : undefined,
+          categories: data.categories
+            ? {
+                set: data.categories.map((categoryId) => ({ id: categoryId })),
+              }
+            : undefined,
+        },
+        include: {
+          featuredImage: true,
+          author: true,
+        },
+      });
+
+      await syncSeoMeta(tx, data.seo, { postId: id });
+
+      return updated;
     });
 
     revalidatePath("/admin/posts");

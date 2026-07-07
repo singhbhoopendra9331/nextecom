@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import PageForm from "@/components/admin/page-form";
+import { metaToSeo } from "@/lib/meta/seo";
 import { prisma } from "@/lib/prisma";
 
 export default async function EditPagePage({
@@ -14,6 +15,7 @@ export default async function EditPagePage({
     where: { id },
     include: {
       featuredImage: true,
+      meta: true,
     },
   });
 
@@ -37,6 +39,7 @@ export default async function EditPagePage({
               originalName: page.featuredImage.originalName,
             }
           : null,
+        seo: metaToSeo(page.meta),
       }}
     />
   );

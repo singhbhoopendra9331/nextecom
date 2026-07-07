@@ -6,12 +6,14 @@ import { useState } from "react";
 
 import { createPage } from "@/actions/pages/create";
 import { updatePage } from "@/actions/pages/update";
+import { SeoFields } from "@/components/admin/seo-fields";
 import Editor from "@/components/editor";
 import { MediaPicker } from "@/components/media-picker";
 import { AppSelect, type SelectOption } from "@/components/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PostStatus } from "@/generated/prisma/enums";
+import type { SeoInput } from "@/lib/meta/seo";
 import { toast } from "@/lib/toast";
 
 type FeaturedImage = {
@@ -26,6 +28,7 @@ export type PageFormInitialValues = {
   status?: PostStatus;
   featuredImageId?: string | null;
   featuredImage?: FeaturedImage | null;
+  seo?: SeoInput;
 };
 
 type PageFormProps = {
@@ -59,6 +62,10 @@ export default function PageForm({
   const [featuredImage, setFeaturedImage] = useState<FeaturedImage | null>(
     initialValues?.featuredImage ?? null
   );
+  const [seo, setSeo] = useState<SeoInput>({
+    title: initialValues?.seo?.title ?? "",
+    description: initialValues?.seo?.description ?? "",
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit() {
@@ -74,6 +81,7 @@ export default function PageForm({
       content,
       status,
       featuredImageId,
+      seo,
     };
 
     const res =
@@ -138,6 +146,8 @@ export default function PageForm({
             value={status}
             onValueChange={(value) => setStatus(value as PostStatus)}
           />
+
+          <SeoFields value={seo} onChange={setSeo} />
 
           <div>
             <label className="block text-sm font-medium mb-1">

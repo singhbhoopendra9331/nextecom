@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+import { metaToSeo } from "@/lib/meta/seo";
 
 import PostForm from "@/components/admin/post-form";
 
@@ -18,6 +19,7 @@ export default async function EditPostPage({
         featuredImage: true,
         tags: { select: { id: true } },
         categories: { select: { id: true } },
+        meta: true,
       },
     }),
     prisma.tag.findMany({
@@ -55,6 +57,7 @@ export default async function EditPostPage({
           : null,
         tagIds: post.tags.map((tag) => tag.id),
         categoryIds: post.categories.map((category) => category.id),
+        seo: metaToSeo(post.meta),
       }}
     />
   );

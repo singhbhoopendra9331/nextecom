@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PostStatus } from "@/generated/prisma/client";
+import { resolveSeoDescription, resolveSeoTitle } from "@/lib/meta/seo";
 import { prisma } from "@/lib/prisma";
 import { getGlobalSettings } from "@/lib/settings";
 
@@ -34,13 +35,13 @@ async function buildMetadata(page: PageRecord | null): Promise<Metadata> {
     };
   }
 
-  const description =
-    page.meta.find((item) => item.key === "description")?.value ??
-    page.meta.find((item) => item.key === "meta_description")?.value ??
-    globalSettings.siteTagline;
+  const description = resolveSeoDescription(
+    page.meta,
+    globalSettings.siteTagline
+  );
 
   return {
-    title: page.title,
+    title: resolveSeoTitle(page.meta, page.title),
     description: description || undefined,
     openGraph: page.featuredImage?.url
       ? { images: [{ url: page.featuredImage.url }] }

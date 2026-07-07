@@ -3,3 +3,6 @@ SEO / Meta fields — Meta model exists and frontend reads description / meta_de
 Custom slugs — slugs are auto-generated from titles via slugify; no manual slug field in forms.
 Page title — marked in-progress in tasks/todos.md.
 Redirects — still todo.
+
+add search on posts on admin page
+add searcon on pages on admin page

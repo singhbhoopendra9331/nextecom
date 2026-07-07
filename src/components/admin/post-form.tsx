@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { createPost } from "@/actions/posts/create-post";
 import { updatePost } from "@/actions/posts/update-post";
+import { SeoFields } from "@/components/admin/seo-fields";
 import Editor from "@/components/editor";
 import { MultiSelectField } from "@/components/form";
 import { MediaPicker } from "@/components/media-picker";
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PostStatus } from "@/generated/prisma/enums";
 import { axios } from "@/lib/axios";
+import type { SeoInput } from "@/lib/meta/seo";
 import { toast } from "@/lib/toast";
 
 type Author = {
@@ -42,6 +44,7 @@ export type PostFormInitialValues = {
   featuredImage?: FeaturedImage | null;
   tagIds?: string[];
   categoryIds?: string[];
+  seo?: SeoInput;
 };
 
 type PostFormProps = {
@@ -84,6 +87,10 @@ export default function PostForm({
   const [categoryIds, setCategoryIds] = useState<string[]>(
     initialValues?.categoryIds ?? []
   );
+  const [seo, setSeo] = useState<SeoInput>({
+    title: initialValues?.seo?.title ?? "",
+    description: initialValues?.seo?.description ?? "",
+  });
   const [authors, setAuthors] = useState<SelectOption[]>([]);
   const [isLoadingAuthors, setIsLoadingAuthors] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -105,7 +112,11 @@ export default function PostForm({
   useEffect(() => {
     setTagIds(initialValues?.tagIds ?? []);
     setCategoryIds(initialValues?.categoryIds ?? []);
-  }, [postId, initialValues?.tagIds, initialValues?.categoryIds]);
+    setSeo({
+      title: initialValues?.seo?.title ?? "",
+      description: initialValues?.seo?.description ?? "",
+    });
+  }, [postId, initialValues?.tagIds, initialValues?.categoryIds, initialValues?.seo]);
 
   useEffect(() => {
     axios
@@ -142,6 +153,7 @@ export default function PostForm({
       featuredImageId,
       tags: tagIds,
       categories: categoryIds,
+      seo,
     };
 
     const res =
@@ -231,6 +243,12 @@ export default function PostForm({
             onChange={setCategoryIds}
             emptyMessage="No categories yet. Add categories from the Categories page."
             placeholder="Select categories..."
+          />
+
+          <SeoFields
+            value={seo}
+            onChange={setSeo}
+            titlePlaceholder="Leave blank to use the post title"
           />
 
           <div>

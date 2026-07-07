@@ -3,6 +3,7 @@ import { AxiosError } from "axios";
 import { notFound } from "next/navigation";
 
 import { axios } from "@/lib/axios";
+import { resolveSeoDescription, resolveSeoTitle } from "@/lib/meta/seo";
 import { getGlobalSettings } from "@/lib/settings";
 
 import PostClient from "./page.client";
@@ -45,13 +46,16 @@ async function buildMetadata(post: PostRecord | null): Promise<Metadata> {
     };
   }
 
-  const description =
-    post.meta.find((item) => item.key === "description")?.value ??
-    post.meta.find((item) => item.key === "meta_description")?.value ??
-    globalSettings.siteTagline;
+  const description = resolveSeoDescription(
+    post.meta,
+    globalSettings.siteTagline
+  );
 
   return {
-    title: `${post.title} | ${globalSettings.siteTitle}`,
+    title: resolveSeoTitle(
+      post.meta,
+      `${post.title} | ${globalSettings.siteTitle}`
+    ),
     description: description || undefined,
     openGraph: post.featuredImage?.url
       ? { images: [{ url: post.featuredImage.url }] }
