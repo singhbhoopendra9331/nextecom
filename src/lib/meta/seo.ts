@@ -87,3 +87,15 @@ export function resolveSeoDescription(
 
   return description?.trim() || fallback;
 }
+
+export function hasSeoConfigured(seo: SeoInput) {
+  return Boolean(seo.title?.trim() || seo.description?.trim());
+}
+
+export function truncateSeoText(value: string | undefined, max = 60) {
+  if (!value?.trim()) {
+    return "";
+  }
+
+  return value.length > max ? `${value.slice(0, max)}…` : value;
+}

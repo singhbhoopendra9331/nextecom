@@ -20,6 +20,7 @@ export default async function Page() {
         featuredImage: {
           select: { id: true, url: true },
         },
+        meta: true,
       },
     }),
     prisma.page.count(),

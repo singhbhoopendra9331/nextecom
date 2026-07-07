@@ -2,11 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Eye, MoreHorizontal, Pencil, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import { deletePost } from "@/actions/posts/delete-post";
+import { updatePostSeo } from "@/actions/posts/update-post-seo";
+import { SeoEditDialog } from "@/components/admin/seo-edit-dialog";
 import { DataTable, DataTableColumn } from "@/components/data-table";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,8 +20,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Post } from "@/generated/prisma/browser";
+import {
+  hasSeoConfigured,
+  metaToSeo,
+  truncateSeoText,
+  type SeoInput,
+} from "@/lib/meta/seo";
 import { toast } from "@/lib/toast";
-import Image from "next/image";
 
 type PostRow = Post & {
   slug: string;
@@ -25,9 +34,40 @@ type PostRow = Post & {
   featuredImage?: { url: string } | null;
   tags?: { name: string }[];
   categories?: { name: string }[];
+  meta?: { key: string; value: string }[];
 };
 
-function PostRowActions({ post }: { post: PostRow }) {
+function SeoSummary({ seo, fallbackTitle }: { seo: SeoInput; fallbackTitle: string }) {
+  if (!hasSeoConfigured(seo)) {
+    return <span className="text-muted-foreground">Not configured</span>;
+  }
+
+  const title = seo.title?.trim() || fallbackTitle;
+  const description = seo.description?.trim();
+
+  return (
+    <div className="space-y-1">
+      <p className="text-sm font-medium">{truncateSeoText(title, 48)}</p>
+      {description ? (
+        <p className="text-xs text-muted-foreground">
+          {truncateSeoText(description, 72)}
+        </p>
+      ) : (
+        <Badge variant="outline" className="text-xs">
+          No description
+        </Badge>
+      )}
+    </div>
+  );
+}
+
+function PostRowActions({
+  post,
+  onEditSeo,
+}: {
+  post: PostRow;
+  onEditSeo: (post: PostRow) => void;
+}) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -76,6 +116,10 @@ function PostRowActions({ post }: { post: PostRow }) {
             Edit
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onEditSeo(post)}>
+          <Search className="text-muted-foreground" />
+          Edit SEO
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
@@ -103,6 +147,9 @@ const PostClient = ({
     };
   };
 }) => {
+  const router = useRouter();
+  const [seoDialogPost, setSeoDialogPost] = useState<PostRow | null>(null);
+
   const columns: DataTableColumn<PostRow>[] = [
     {
       id: "title",
@@ -123,7 +170,28 @@ const PostClient = ({
     {
       id: "featuredImage",
       header: "Featured Image",
-      cell: (row) => <Image src={row.featuredImage?.url ?? ""} alt={row.title} width={100} height={100} /> ?? "—",
+      cell: (row) =>
+        row.featuredImage?.url ? (
+          <Image
+            src={row.featuredImage.url}
+            alt={row.title}
+            width={100}
+            height={100}
+            className="rounded object-cover"
+          />
+        ) : (
+          "—"
+        ),
+    },
+    {
+      id: "seo",
+      header: "SEO",
+      cell: (row) => (
+        <SeoSummary
+          seo={metaToSeo(row.meta ?? [])}
+          fallbackTitle={row.title}
+        />
+      ),
     },
     {
       id: "tags",
@@ -139,16 +207,36 @@ const PostClient = ({
     {
       id: "actions",
       header: "Actions",
-      cell: (row) => <PostRowActions post={row} />,
+      cell: (row) => (
+        <PostRowActions post={row} onEditSeo={setSeoDialogPost} />
+      ),
     },
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={initialData.docs}
-      getRowKey={(row) => row.id}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={initialData.docs}
+        getRowKey={(row) => row.id}
+      />
+
+      {seoDialogPost ? (
+        <SeoEditDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              setSeoDialogPost(null);
+            }
+          }}
+          contentTitle={seoDialogPost.title}
+          initialSeo={metaToSeo(seoDialogPost.meta ?? [])}
+          titlePlaceholder="Leave blank to use the post title"
+          onSave={(seo) => updatePostSeo(seoDialogPost.id, seo)}
+          onSaved={() => router.refresh()}
+        />
+      ) : null}
+    </>
   );
 };
 

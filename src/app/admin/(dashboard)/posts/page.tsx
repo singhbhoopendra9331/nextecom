@@ -21,6 +21,7 @@ export default async function Page() {
         featuredImage: true,
         tags: true,
         categories: true,
+        meta: true,
       },
     }),
     prisma.post.count(),

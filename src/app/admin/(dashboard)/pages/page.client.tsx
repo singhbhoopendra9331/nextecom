@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
 import { deletePage } from "@/actions/pages/delete";
+import { updatePageSeo } from "@/actions/pages/update-page-seo";
+import { SeoEditDialog } from "@/components/admin/seo-edit-dialog";
 import { DataTable, DataTableColumn } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,11 +20,42 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Page, PostStatus } from "@/generated/prisma/browser";
+import {
+  hasSeoConfigured,
+  metaToSeo,
+  truncateSeoText,
+  type SeoInput,
+} from "@/lib/meta/seo";
 import { toast } from "@/lib/toast";
 
 type PageRow = Page & {
   featuredImage?: { id: string; url: string } | null;
+  meta?: { key: string; value: string }[];
 };
+
+function SeoSummary({ seo, fallbackTitle }: { seo: SeoInput; fallbackTitle: string }) {
+  if (!hasSeoConfigured(seo)) {
+    return <span className="text-muted-foreground">Not configured</span>;
+  }
+
+  const title = seo.title?.trim() || fallbackTitle;
+  const description = seo.description?.trim();
+
+  return (
+    <div className="space-y-1">
+      <p className="text-sm font-medium">{truncateSeoText(title, 48)}</p>
+      {description ? (
+        <p className="text-xs text-muted-foreground">
+          {truncateSeoText(description, 72)}
+        </p>
+      ) : (
+        <Badge variant="outline" className="text-xs">
+          No description
+        </Badge>
+      )}
+    </div>
+  );
+}
 
 function statusVariant(status: PostStatus) {
   switch (status) {
@@ -35,7 +68,13 @@ function statusVariant(status: PostStatus) {
   }
 }
 
-function PageRowActions({ page }: { page: PageRow }) {
+function PageRowActions({
+  page,
+  onEditSeo,
+}: {
+  page: PageRow;
+  onEditSeo: (page: PageRow) => void;
+}) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -74,6 +113,10 @@ function PageRowActions({ page }: { page: PageRow }) {
             Edit
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onEditSeo(page)}>
+          <Search className="text-muted-foreground" />
+          Edit SEO
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
@@ -101,6 +144,9 @@ const PagesPageClient = ({
     };
   };
 }) => {
+  const router = useRouter();
+  const [seoDialogPage, setSeoDialogPage] = useState<PageRow | null>(null);
+
   const columns: DataTableColumn<PageRow>[] = [
     {
       id: "title",
@@ -123,6 +169,16 @@ const PagesPageClient = ({
       ),
     },
     {
+      id: "seo",
+      header: "SEO",
+      cell: (row) => (
+        <SeoSummary
+          seo={metaToSeo(row.meta ?? [])}
+          fallbackTitle={row.title}
+        />
+      ),
+    },
+    {
       id: "updatedAt",
       header: "Updated",
       cell: (row) => format(new Date(row.updatedAt), "MMM d, yyyy"),
@@ -130,17 +186,36 @@ const PagesPageClient = ({
     {
       id: "actions",
       header: "Actions",
-      cell: (row) => <PageRowActions page={row} />,
+      cell: (row) => (
+        <PageRowActions page={row} onEditSeo={setSeoDialogPage} />
+      ),
     },
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={initialData.docs}
-      getRowKey={(row) => row.id}
-      emptyMessage="No pages yet. Create your first page."
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={initialData.docs}
+        getRowKey={(row) => row.id}
+        emptyMessage="No pages yet. Create your first page."
+      />
+
+      {seoDialogPage ? (
+        <SeoEditDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              setSeoDialogPage(null);
+            }
+          }}
+          contentTitle={seoDialogPage.title}
+          initialSeo={metaToSeo(seoDialogPage.meta ?? [])}
+          onSave={(seo) => updatePageSeo(seoDialogPage.id, seo)}
+          onSaved={() => router.refresh()}
+        />
+      ) : null}
+    </>
   );
 };
 
