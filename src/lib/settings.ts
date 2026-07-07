@@ -2,11 +2,12 @@ import { getOption, setOption } from "@/lib/options";
 
 import {
   DEFAULT_GLOBAL_SETTINGS,
+  DEFAULT_READING_SETTINGS,
   DEFAULT_REDIRECTS_SETTINGS,
   DEFAULT_SMTP_SETTINGS,
 } from "@/lib/settings/constants";
-import { GLOBAL_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
-import { GlobalSettings, RedirectsSettings, SmtpSettings } from "@/types/settings";
+import { GLOBAL_SETTINGS_KEY, READING_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
+import { GlobalSettings, ReadingSettings, RedirectsSettings, SmtpSettings } from "@/types/settings";
 import { invalidateRedirectsCache, parseRedirectsSettings } from "@/lib/redirects";
 
 export async function getGlobalSettings(): Promise<GlobalSettings> {
@@ -45,12 +46,30 @@ export async function saveRedirectsSettings(settings: RedirectsSettings) {
   invalidateRedirectsCache();
 }
 
+export async function getReadingSettings(): Promise<ReadingSettings> {
+  const stored = await getOption<Partial<ReadingSettings>>(READING_SETTINGS_KEY);
+
+  return {
+    ...DEFAULT_READING_SETTINGS,
+    ...stored,
+    homepagePageId: stored?.homepagePageId ?? null,
+  };
+}
+
+export async function saveReadingSettings(settings: ReadingSettings) {
+  await setOption(READING_SETTINGS_KEY, {
+    homepagePageId: settings.homepagePageId || null,
+  });
+}
+
 export async function ensureDefaultOptions() {
-  const [globalSettings, smtpSettings, redirectsSettings] = await Promise.all([
-    getOption(GLOBAL_SETTINGS_KEY),
-    getOption(SMTP_SETTINGS_KEY),
-    getOption(REDIRECTS_SETTINGS_KEY),
-  ]);
+  const [globalSettings, smtpSettings, redirectsSettings, readingSettings] =
+    await Promise.all([
+      getOption(GLOBAL_SETTINGS_KEY),
+      getOption(SMTP_SETTINGS_KEY),
+      getOption(REDIRECTS_SETTINGS_KEY),
+      getOption(READING_SETTINGS_KEY),
+    ]);
 
   await Promise.all([
     globalSettings
@@ -62,5 +81,8 @@ export async function ensureDefaultOptions() {
     redirectsSettings
       ? Promise.resolve()
       : setOption(REDIRECTS_SETTINGS_KEY, DEFAULT_REDIRECTS_SETTINGS),
+    readingSettings
+      ? Promise.resolve()
+      : setOption(READING_SETTINGS_KEY, DEFAULT_READING_SETTINGS),
   ]);
 }

@@ -13,8 +13,9 @@ import {
   formatOptionValueLabel,
   formatOptionValuePreview,
 } from "@/lib/settings/option-value";
-import { GLOBAL_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
+import { GLOBAL_SETTINGS_KEY, READING_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
 import OptionForm, { type OptionRow } from "./option-form";
+import type { PublishedPageOption } from "./reading-settings-form";
 
 function getSheetTitle(
   mode: "create" | "edit",
@@ -34,6 +35,10 @@ function getSheetTitle(
 
   if (option?.key === REDIRECTS_SETTINGS_KEY) {
     return "Edit Redirects";
+  }
+
+  if (option?.key === READING_SETTINGS_KEY) {
+    return "Reading Settings";
   }
 
   return "Edit Option";
@@ -59,8 +64,10 @@ function OptionRowActions({
 
 export default function SettingsPageClient({
   initialOptions,
+  publishedPages,
 }: {
   initialOptions: OptionRow[];
+  publishedPages: PublishedPageOption[];
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -161,13 +168,16 @@ export default function SettingsPageClient({
         width={
           selectedOption?.key === REDIRECTS_SETTINGS_KEY
             ? "w-[720px]"
-            : "w-[520px]"
+            : selectedOption?.key === READING_SETTINGS_KEY
+              ? "w-[560px]"
+              : "w-[520px]"
         }
       >
         {(mode === "create" || selectedOption) && (
           <OptionForm
             mode={mode}
             option={selectedOption ?? undefined}
+            publishedPages={publishedPages}
             onSuccess={handleSuccess}
           />
         )}

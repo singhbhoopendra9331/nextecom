@@ -1,5 +1,5 @@
-import { ADMIN_SITE_NAME, GLOBAL_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
-import { GlobalSettings, RedirectsSettings, SmtpSettings } from "@/types/settings";
+import { ADMIN_SITE_NAME, GLOBAL_SETTINGS_KEY, READING_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
+import { GlobalSettings, ReadingSettings, RedirectsSettings, SmtpSettings } from "@/types/settings";
 
 export const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   siteTitle: ADMIN_SITE_NAME,
@@ -26,10 +26,15 @@ export const DEFAULT_REDIRECTS_SETTINGS: RedirectsSettings = {
   rules: [],
 };
 
+export const DEFAULT_READING_SETTINGS: ReadingSettings = {
+  homepagePageId: null,
+};
+
 export const STRUCTURED_OPTION_KEYS = [
   GLOBAL_SETTINGS_KEY,
   SMTP_SETTINGS_KEY,
   REDIRECTS_SETTINGS_KEY,
+  READING_SETTINGS_KEY,
 ] as const;
 
 export type StructuredOptionKey = (typeof STRUCTURED_OPTION_KEYS)[number];

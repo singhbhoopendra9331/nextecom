@@ -22,10 +22,13 @@ import {
 import { toast } from "@/lib/toast";
 
 import GlobalSettingsForm from "./global-settings-form";
+import ReadingSettingsForm, {
+  type PublishedPageOption,
+} from "./reading-settings-form";
 import RedirectsSettingsForm from "./redirects-settings-form";
 import SmtpSettingsForm from "./smtp-settings-form";
-import { GlobalSettings, RedirectsSettings, SmtpSettings } from "@/types/settings";
-import { GLOBAL_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
+import { GlobalSettings, ReadingSettings, RedirectsSettings, SmtpSettings } from "@/types/settings";
+import { GLOBAL_SETTINGS_KEY, READING_SETTINGS_KEY, REDIRECTS_SETTINGS_KEY, SMTP_SETTINGS_KEY } from "@/constants/index";
 
 export type OptionRow = {
   id: string;
@@ -39,6 +42,7 @@ export type OptionRow = {
 type OptionFormProps = {
   mode: "create" | "edit";
   option?: OptionRow;
+  publishedPages?: PublishedPageOption[];
   onSuccess?: () => void;
 };
 
@@ -50,7 +54,12 @@ const DEFAULT_VALUE_BY_TYPE: Record<OptionValueType, string> = {
   json: "{}",
 };
 
-export default function OptionForm({ mode, option, onSuccess }: OptionFormProps) {
+export default function OptionForm({
+  mode,
+  option,
+  publishedPages = [],
+  onSuccess,
+}: OptionFormProps) {
   if (mode === "edit" && option?.key === GLOBAL_SETTINGS_KEY) {
     return (
       <GlobalSettingsForm
@@ -73,6 +82,16 @@ export default function OptionForm({ mode, option, onSuccess }: OptionFormProps)
     return (
       <RedirectsSettingsForm
         initialValues={option.value as Partial<RedirectsSettings>}
+        onSuccess={onSuccess}
+      />
+    );
+  }
+
+  if (mode === "edit" && option?.key === READING_SETTINGS_KEY) {
+    return (
+      <ReadingSettingsForm
+        initialValues={option.value as Partial<ReadingSettings>}
+        pages={publishedPages}
         onSuccess={onSuccess}
       />
     );

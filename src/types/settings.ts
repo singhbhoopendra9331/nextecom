@@ -35,3 +35,8 @@ export type RedirectRule = {
 export type RedirectsSettings = {
   rules: RedirectRule[];
 };
+
+export type ReadingSettings = {
+  /** Published page id to show at /. Null uses the page with slug "home". */
+  homepagePageId: string | null;
+};
