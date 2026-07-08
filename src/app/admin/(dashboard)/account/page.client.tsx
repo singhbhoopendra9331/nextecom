@@ -95,11 +95,7 @@ export default function AccountPageClient({
   }
 
   return (
-    <div className="min-h-screen p-2 md:p-4">
-      <div className="mb-4 flex items-center gap-4">
-        <h1 className="font-semibold text-2xl">Account</h1>
-      </div>
-
+    <>
       <form
         onSubmit={profileForm.handleSubmit(onProfileSubmit)}
         className="max-w-md space-y-4"
@@ -186,6 +182,6 @@ export default function AccountPageClient({
           {isDeleting ? "Deleting..." : "Delete Account"}
         </Button>
       </form>
-    </div>
+    </>
   );
 }

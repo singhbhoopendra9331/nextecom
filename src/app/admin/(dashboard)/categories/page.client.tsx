@@ -1,12 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { deleteCategory } from "@/actions/categories/delete-category";
 import { AppSheet } from "@/components/app-sheet";
 import { DataTable, DataTableColumn } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
+import { axios } from "@/lib/axios";
 import { toast } from "@/lib/toast";
 
 import CategoryForm, { type CategoryRow } from "./category-form";
@@ -14,11 +14,11 @@ import CategoryForm, { type CategoryRow } from "./category-form";
 function CategoryRowActions({
   category,
   onEdit,
-  onDelete,
+  onChanged,
 }: {
   category: CategoryRow;
   onEdit: (category: CategoryRow) => void;
-  onDelete: (category: CategoryRow) => void;
+  onChanged: () => void;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -37,7 +37,7 @@ function CategoryRowActions({
 
     if (res.success) {
       toast.success("Category deleted successfully");
-      onDelete(category);
+      onChanged();
       return;
     }
 
@@ -62,16 +62,57 @@ function CategoryRowActions({
 }
 
 export default function CategoriesPageClient({
-  initialCategories,
+  initialData,
 }: {
-  initialCategories: CategoryRow[];
+  initialData: {
+    docs: CategoryRow[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
 }) {
-  const router = useRouter();
+  const [data, setData] = useState(initialData);
+  const [search, setSearch] = useState("");
+  const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("edit");
   const [selectedCategory, setSelectedCategory] = useState<CategoryRow | null>(
     null
   );
+  const skipSearchEffect = useRef(true);
+
+  const fetchCategories = useCallback(
+    (page: number, searchTerm: string) => {
+      startTransition(async () => {
+        const response = await axios.get("/api/categories", {
+          params: {
+            page,
+            limit: data.pagination.limit,
+            search: searchTerm.trim(),
+          },
+        });
+
+        setData(response.data);
+      });
+    },
+    [data.pagination.limit]
+  );
+
+  useEffect(() => {
+    if (skipSearchEffect.current) {
+      skipSearchEffect.current = false;
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      fetchCategories(1, search);
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [search, fetchCategories]);
 
   function openCreateSheet() {
     setMode("create");
@@ -94,11 +135,7 @@ export default function CategoriesPageClient({
 
   function handleSuccess() {
     handleSheetOpenChange(false);
-    router.refresh();
-  }
-
-  function handleDeleted() {
-    router.refresh();
+    fetchCategories(data.pagination.page, search);
   }
 
   const columns: DataTableColumn<CategoryRow>[] = [
@@ -128,7 +165,7 @@ export default function CategoriesPageClient({
         <CategoryRowActions
           category={row}
           onEdit={openEditSheet}
-          onDelete={handleDeleted}
+          onChanged={() => fetchCategories(data.pagination.page, search)}
         />
       ),
     },
@@ -143,10 +180,21 @@ export default function CategoriesPageClient({
       </div>
 
       <DataTable
+        showHeader={false}
         columns={columns}
-        data={initialCategories}
+        data={data.docs}
         getRowKey={(row) => row.id}
-        emptyMessage="No categories yet. Create your first category."
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search categories..."
+        isLoading={isPending}
+        pagination={data.pagination}
+        onPageChange={(page) => fetchCategories(page, search)}
+        emptyMessage={
+          search.trim()
+            ? "No categories match your search."
+            : "No categories yet. Create your first category."
+        }
       />
 
       <AppSheet

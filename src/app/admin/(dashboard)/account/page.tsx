@@ -4,6 +4,7 @@ import { createAdminMetadata } from "@/lib/admin/metadata";
 import { getSession } from "@/lib/auth/session";
 
 import AccountPageClient from "./page.client";
+import { PageTitle } from "@/components/page-title";
 
 export const metadata = createAdminMetadata(
   "Account",
@@ -18,12 +19,15 @@ export default async function AccountPage() {
   }
 
   return (
-    <AccountPageClient
-      initialValues={{
-        name: session.name ?? "",
-        email: session.email,
-        role: session.role,
-      }}
-    />
+    <div className="min-h-screen p-2 md:p-4 space-y-4">
+      <PageTitle title="Account" description="Manage your account settings" />
+      <AccountPageClient
+        initialValues={{
+          name: session.name ?? "",
+          email: session.email,
+          role: session.role,
+        }}
+      />
+    </div>
   );
 }
