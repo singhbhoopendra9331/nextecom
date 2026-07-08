@@ -133,17 +133,17 @@ export const data = {
     },
 
     {
-      title: "Global Settings",
-      url: "/admin/",
+      title: "Globals",
+      url: "/admin/globals",
       icon: Settings,
       items: [
         {
           title: "Header",
-          url: "/admin/settings/header",
+          url: "/admin/globals/global-header",
         },
         {
           title: "Footer",
-          url: "/admin/settings/footer",
+          url: "/admin/globals/global-footer",
         }, 
       ],
     }

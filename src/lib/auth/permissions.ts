@@ -27,6 +27,7 @@ export type Permission = keyof typeof PERMISSIONS;
 const ROUTE_RULES: { prefix: string; permission: Permission }[] = [
   { prefix: "/admin/users", permission: "users:manage" },
   { prefix: "/admin/settings", permission: "settings:manage" },
+  { prefix: "/admin/globals", permission: "settings:manage" },
   { prefix: "/admin/logs", permission: "logs:read" },
   { prefix: "/admin/posts", permission: "posts:read" },
   { prefix: "/admin/tags", permission: "posts:read" },

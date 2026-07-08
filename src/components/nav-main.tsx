@@ -14,6 +14,7 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -41,7 +42,10 @@ function CollapsibleNavItem({
   }
   pathname: string
 }) {
-  const isSectionActive = item.items.some((sub) => isActiveUrl(pathname, sub.url))
+  const hasParentLink = item.url !== "#"
+  const isParentActive = hasParentLink && isActiveUrl(pathname, item.url)
+  const isChildActive = item.items.some((sub) => isActiveUrl(pathname, sub.url))
+  const isSectionActive = isParentActive || isChildActive
   const [open, setOpen] = React.useState(isSectionActive)
 
   React.useEffect(() => {
@@ -58,13 +62,35 @@ function CollapsibleNavItem({
       className="group/collapsible"
     >
       <SidebarMenuItem>
-        <CollapsibleTrigger asChild>
-          <SidebarMenuButton tooltip={item.title} isActive={isSectionActive}>
-            {item.icon && <item.icon />}
-            <span>{item.title}</span>
-            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-          </SidebarMenuButton>
-        </CollapsibleTrigger>
+        {hasParentLink ? (
+          <>
+            <SidebarMenuButton
+              asChild
+              tooltip={item.title}
+              isActive={isParentActive}
+              className="pr-8"
+            >
+              <Link href={item.url}>
+                {item.icon && <item.icon />}
+                <span>{item.title}</span>
+              </Link>
+            </SidebarMenuButton>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuAction>
+                <ChevronRight className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                <span className="sr-only">Toggle {item.title} menu</span>
+              </SidebarMenuAction>
+            </CollapsibleTrigger>
+          </>
+        ) : (
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton tooltip={item.title} isActive={isSectionActive}>
+              {item.icon && <item.icon />}
+              <span>{item.title}</span>
+              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+        )}
         <CollapsibleContent>
           <SidebarMenuSub>
             {item.items.map((subItem) => (

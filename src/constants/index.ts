@@ -1,4 +1,6 @@
 export const GLOBAL_SETTINGS_KEY = "global_settings";
+export const GLOBAL_HEADER_KEY = "global-header";
+export const GLOBAL_FOOTER_KEY = "global-footer";
 export const SMTP_SETTINGS_KEY = "smtp";
 export const REDIRECTS_SETTINGS_KEY = "redirects";
 export const READING_SETTINGS_KEY = "reading_settings";
