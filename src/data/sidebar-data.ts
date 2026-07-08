@@ -1,135 +1,151 @@
 import {
-    GalleryVerticalEnd,
-    Users,
-    Image,
-    FileText,
-    LayoutDashboard,
-    FolderTree,
-    Settings,
-    ShoppingCart,
-    ScrollText,
+  GalleryVerticalEnd,
+  Users,
+  Image,
+  FileText,
+  LayoutDashboard,
+  FolderTree,
+  Settings,
+  ShoppingCart,
+  ScrollText,
 } from "lucide-react";
 
 export const data = {
-    user: {
-        name: "user",
-        email: "user@gmail.com",
-        avatar: "/avatars/shadcn.jpg",
+  user: {
+    name: "user",
+    email: "user@gmail.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+
+  teams: [
+    {
+      name: "Acme Inc",
+      logo: GalleryVerticalEnd,
+      plan: "Enterprise",
+    },
+  ],
+
+  navMain: [
+    // 📊 Dashboard
+    {
+      title: "Dashboard",
+      url: "/admin",
+      icon: LayoutDashboard,
     },
 
-    teams: [
+    // 🛒 Ecommerce
+    {
+      title: "Ecommerce",
+      url: "#",
+      icon: ShoppingCart,
+      items: [
         {
-            name: "Acme Inc",
-            logo: GalleryVerticalEnd,
-            plan: "Enterprise",
+          title: "Products",
+          url: "/admin/products",
         },
-    ],
+        {
+          title: "Categories",
+          url: "/admin/categories",
+        },
+        {
+          title: "Orders",
+          url: "/admin/orders",
+        },
+        {
+          title: "Customers",
+          url: "/admin/customers",
+        },
+        {
+          title: "Coupons",
+          url: "/admin/coupons",
+        },
+      ],
+    },
 
-    navMain: [
-        // 📊 Dashboard
+    // 📝 CMS
+    {
+      title: "CMS",
+      url: "#",
+      icon: FileText,
+      items: [
         {
-            title: "Dashboard",
-            url: "/admin",
-            icon: LayoutDashboard,
+          title: "Pages",
+          url: "/admin/pages",
         },
+        {
+          title: "Posts",
+          url: "/admin/posts",
+        },
+        {
+          title: "Forms",
+          url: "/admin/forms",
+        },
+        {
+          title: "Media Library",
+          url: "/admin/media",
+        },
+      ],
+    },
 
-        // 🛒 Ecommerce
-        {
-            title: "Ecommerce",
-            url: "#",
-            icon: ShoppingCart,
-            items: [
-                {
-                    title: "Products",
-                    url: "/admin/products",
-                },
-                {
-                    title: "Categories",
-                    url: "/admin/categories",
-                },
-                {
-                    title: "Orders",
-                    url: "/admin/orders",
-                },
-                {
-                    title: "Customers",
-                    url: "/admin/customers",
-                },
-                {
-                    title: "Coupons",
-                    url: "/admin/coupons",
-                },
-            ],
-        },
+    // 👥 Users
+    {
+      title: "Users",
+      url: "/admin/users",
+      icon: Users,
+    },
 
-        // 📝 CMS
-        {
-            title: "CMS",
-            url: "#",
-            icon: FileText,
-            items: [
-                {
-                    title: "Pages",
-                    url: "/admin/pages",
-                },
-                {
-                    title: "Posts",
-                    url: "/admin/posts",
-                },
-                {
-                    title: "Forms",
-                    url: "/admin/forms",
-                },
-                {
-                    title: "Media Library",
-                    url: "/admin/media",
-                },
-            ],
-        },
+    // 🖼 Media
+    {
+      title: "Media",
+      url: "/admin/media",
+      icon: Image,
+    },
 
-        // 👥 Users
+    // 🏷 Catalog
+    {
+      title: "Catalog",
+      url: "#",
+      icon: FolderTree,
+      items: [
         {
-            title: "Users",
-            url: "/admin/users",
-            icon: Users,
+          title: "Tags",
+          url: "/admin/tags",
         },
+        {
+          title: "Attributes",
+          url: "/admin/attributes",
+        },
+      ],
+    },
 
-        // 🖼 Media
-        {
-            title: "Media",
-            url: "/admin/media",
-            icon: Image,
-        },
+    // ⚙ Settings
+    {
+      title: "Settings",
+      url: "/admin/settings",
+      icon: Settings,
+    },
 
-        // 🏷 Catalog
-        {
-            title: "Catalog",
-            url: "#",
-            icon: FolderTree,
-            items: [
-                {
-                    title: "Tags",
-                    url: "/admin/tags",
-                },
-                {
-                    title: "Attributes",
-                    url: "/admin/attributes",
-                },
-            ],
-        },
+    // 📋 Logs
+    {
+      title: "Logs",
+      url: "/admin/logs",
+      icon: ScrollText,
+    },
 
-        // ⚙ Settings
+    {
+      title: "Global Settings",
+      url: "/admin/",
+      icon: Settings,
+      items: [
         {
-            title: "Settings",
-            url: "/admin/settings",
-            icon: Settings,
+          title: "Header",
+          url: "/admin/settings/header",
         },
-
-        // 📋 Logs
         {
-            title: "Logs",
-            url: "/admin/logs",
-            icon: ScrollText,
-        },
-    ],
+          title: "Footer",
+          url: "/admin/settings/footer",
+        }, 
+      ],
+    }
+  ],
 };
