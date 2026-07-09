@@ -41,7 +41,7 @@ function userModelHasField(client: PrismaClient, field: string): boolean {
   return fields.some((item) => item.name === field);
 }
 
-function isValidClient(client: PrismaClient | undefined): client is PrismaClient {
+function isValidClient(client: PrismaClient | undefined): boolean {
   return Boolean(
     client &&
       typeof (client as unknown as Record<string, unknown>).applicationLog ===
@@ -52,14 +52,14 @@ function isValidClient(client: PrismaClient | undefined): client is PrismaClient
 }
 
 function getPrisma(): PrismaClient {
-  if (isValidClient(globalForPrisma.prisma)) {
-    return globalForPrisma.prisma;
+  const existing = globalForPrisma.prisma;
+
+  if (existing && isValidClient(existing)) {
+    return existing;
   }
 
-  const staleClient = globalForPrisma.prisma;
-
-  if (staleClient) {
-    void staleClient.$disconnect().catch(() => undefined);
+  if (existing) {
+    void existing.$disconnect().catch(() => undefined);
   }
 
   const client = createPrismaClient();

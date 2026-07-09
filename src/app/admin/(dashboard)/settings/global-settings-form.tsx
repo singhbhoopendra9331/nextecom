@@ -9,19 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   DEFAULT_GLOBAL_SETTINGS,
-  type GlobalSettings,
 } from "@/lib/settings/constants";
 import { toast } from "@/lib/toast";
+import { GlobalSettings } from "@/types/settings";
 
-type GlobalSettingsFormProps = {
-  initialValues?: Partial<GlobalSettings>;
-  onSuccess?: () => void;
-};
-
-export default function GlobalSettingsForm({
-  initialValues,
-  onSuccess,
-}: GlobalSettingsFormProps) {
+export default function GlobalSettingsForm({ initialValues, onSuccess }: { initialValues?: Partial<GlobalSettings>; onSuccess?: () => void }) {
   const [settings, setSettings] = useState<GlobalSettings>({
     ...DEFAULT_GLOBAL_SETTINGS,
     ...initialValues,

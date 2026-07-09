@@ -11,10 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   DEFAULT_SMTP_SETTINGS,
-  type SmtpEncryption,
-  type SmtpSettings,
 } from "@/lib/settings/constants";
 import { toast } from "@/lib/toast";
+import { SmtpEncryption, SmtpSettings } from "@/types/settings";
 
 const ENCRYPTION_OPTIONS = [
   { value: "none", label: "None" },

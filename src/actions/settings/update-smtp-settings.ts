@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import { authErrorResult, authorize } from "@/lib/auth/require-auth";
-import { saveSmtpSettings, type SmtpSettings } from "@/lib/settings";
+import { saveSmtpSettings } from "@/lib/settings";
+import { SmtpSettings } from "@/types/settings";
 
 export async function updateSmtpSettings(data: SmtpSettings) {
   const auth = await authorize("settings:manage");

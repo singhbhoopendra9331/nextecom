@@ -6,8 +6,8 @@ import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import {
   getGlobalSettings,
   saveGlobalSettings,
-  type GlobalSettings,
 } from "@/lib/settings";
+import { GlobalSettings } from "@/types/settings";
 
 export async function getSettingsAction() {
   const auth = await authorize("settings:manage");
