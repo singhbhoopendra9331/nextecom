@@ -5,7 +5,7 @@ import { z } from "zod";
 import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import { sendMail } from "@/lib/email/send-mail";
 import { logger } from "@/lib/logger";
-import { type SmtpSettings } from "@/lib/settings/constants";
+import { SmtpSettings } from "@/types/settings";
 
 const testEmailSchema = z.object({
   to: z.email("Enter a valid recipient email address"),
