@@ -9,3 +9,5 @@ add searcon on pages on admin page
 
 related posts
 add connection test
+add next-progressbar
+comments with thread support
