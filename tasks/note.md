@@ -6,3 +6,6 @@ Redirects — still todo.
 
 add search on posts on admin page
 add searcon on pages on admin page
+
+related posts
+add connection test
