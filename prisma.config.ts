@@ -5,8 +5,8 @@ import { config } from "dotenv";
 import { resolve } from "node:path";
 import { defineConfig } from "prisma/config";
 
-// Load .env.local if DATABASE_URL isn't set (e.g. Next.js often uses .env.local)
-if (!process.env["DATABASE_URL"]) {
+// Load .env.local when DB URLs aren't set (Next.js often uses .env.local)
+if (!process.env["DATABASE_URL"] || !process.env["DIRECT_URL"]) {
   config({ path: resolve(process.cwd(), ".env.local") });
 }
 
@@ -16,6 +16,8 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Prisma CLI (migrate, studio, introspect) needs a direct/session connection.
+    // App runtime uses DATABASE_URL (pooled) via src/lib/prisma.ts.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });
