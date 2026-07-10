@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 import { prisma } from "@/lib/prisma";
 import { createAdminMetadata } from "@/lib/admin/metadata";
+import { metaToRelatedPostIds } from "@/lib/meta/related-posts";
 import { metaToSeo } from "@/lib/meta/seo";
 
 import PostForm from "@/components/admin/post-form";
@@ -32,7 +33,7 @@ export default async function EditPostPage({
 }) {
   const { id } = await params;
 
-  const [post, tags, categories] = await Promise.all([
+  const [post, tags, categories, posts] = await Promise.all([
     prisma.post.findUnique({
       where: { id },
       include: {
@@ -50,6 +51,11 @@ export default async function EditPostPage({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    prisma.post.findMany({
+      where: { id: { not: id } },
+      select: { id: true, title: true },
+      orderBy: { title: "asc" },
+    }),
   ]);
 
   if (!post) {
@@ -62,6 +68,7 @@ export default async function EditPostPage({
       postId={post.id}
       tags={tags}
       categories={categories}
+      posts={posts.map((item) => ({ id: item.id, name: item.title }))}
       initialValues={{
         title: post.title,
         content: post.content,
@@ -77,6 +84,7 @@ export default async function EditPostPage({
           : null,
         tagIds: post.tags.map((tag) => tag.id),
         categoryIds: post.categories.map((category) => category.id),
+        relatedPostIds: metaToRelatedPostIds(post.meta),
         seo: metaToSeo(post.meta),
       }}
     />

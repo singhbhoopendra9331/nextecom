@@ -2,6 +2,7 @@
 
 import { PostStatus } from "@/generated/prisma/client";
 import { authErrorResult, authorize } from "@/lib/auth/require-auth";
+import { syncRelatedPostsMeta } from "@/lib/meta/related-posts";
 import { syncSeoMeta, type SeoInput } from "@/lib/meta/seo";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
@@ -15,6 +16,7 @@ type Input = {
   status?: PostStatus;
   tags?: string[];
   categories?: string[];
+  relatedPostIds?: string[];
   seo?: SeoInput;
 };
 
@@ -64,6 +66,10 @@ export async function createPost(data: Input) {
       });
 
       await syncSeoMeta(tx, data.seo, { postId: created.id });
+      await syncRelatedPostsMeta(tx, data.relatedPostIds, {
+        postId: created.id,
+        excludePostId: created.id,
+      });
 
       return created;
     });

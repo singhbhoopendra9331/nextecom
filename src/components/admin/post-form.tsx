@@ -44,6 +44,7 @@ export type PostFormInitialValues = {
   featuredImage?: FeaturedImage | null;
   tagIds?: string[];
   categoryIds?: string[];
+  relatedPostIds?: string[];
   seo?: SeoInput;
 };
 
@@ -53,6 +54,7 @@ type PostFormProps = {
   initialValues?: PostFormInitialValues;
   tags?: TaxonomyOption[];
   categories?: TaxonomyOption[];
+  posts?: TaxonomyOption[];
 };
 
 const statusOptions: SelectOption[] = [
@@ -67,6 +69,7 @@ export default function PostForm({
   initialValues,
   tags = [],
   categories = [],
+  posts = [],
 }: PostFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState(initialValues?.title ?? "");
@@ -86,6 +89,9 @@ export default function PostForm({
   const [tagIds, setTagIds] = useState<string[]>(initialValues?.tagIds ?? []);
   const [categoryIds, setCategoryIds] = useState<string[]>(
     initialValues?.categoryIds ?? []
+  );
+  const [relatedPostIds, setRelatedPostIds] = useState<string[]>(
+    initialValues?.relatedPostIds ?? []
   );
   const [seo, setSeo] = useState<SeoInput>({
     title: initialValues?.seo?.title ?? "",
@@ -109,14 +115,26 @@ export default function PostForm({
     [categories]
   );
 
+  const postOptions = useMemo(
+    () => posts.map((post) => ({ value: post.id, label: post.name })),
+    [posts]
+  );
+
   useEffect(() => {
     setTagIds(initialValues?.tagIds ?? []);
     setCategoryIds(initialValues?.categoryIds ?? []);
+    setRelatedPostIds(initialValues?.relatedPostIds ?? []);
     setSeo({
       title: initialValues?.seo?.title ?? "",
       description: initialValues?.seo?.description ?? "",
     });
-  }, [postId, initialValues?.tagIds, initialValues?.categoryIds, initialValues?.seo]);
+  }, [
+    postId,
+    initialValues?.tagIds,
+    initialValues?.categoryIds,
+    initialValues?.relatedPostIds,
+    initialValues?.seo,
+  ]);
 
   useEffect(() => {
     axios
@@ -153,6 +171,7 @@ export default function PostForm({
       featuredImageId,
       tags: tagIds,
       categories: categoryIds,
+      relatedPostIds,
       seo,
     };
 
@@ -243,6 +262,15 @@ export default function PostForm({
             onChange={setCategoryIds}
             emptyMessage="No categories yet. Add categories from the Categories page."
             placeholder="Select categories..."
+          />
+
+          <MultiSelectField
+            label="Related Posts"
+            options={postOptions}
+            value={relatedPostIds}
+            onChange={setRelatedPostIds}
+            emptyMessage="No other posts available yet."
+            placeholder="Select related posts..."
           />
 
           <SeoFields

@@ -1,4 +1,5 @@
 import { PostStatus } from "@/generated/prisma/client";
+import { getRelatedPosts } from "@/lib/posts/get-related-posts";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -34,7 +35,14 @@ export async function GET(_req: Request, { params }: Params) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    return NextResponse.json(post);
+    const relatedPosts = await getRelatedPosts(post.meta, {
+      currentPostId: post.id,
+    });
+
+    return NextResponse.json({
+      ...post,
+      relatedPosts,
+    });
   } catch (error) {
     console.error("GET /api/posts/[slug]:", error);
 

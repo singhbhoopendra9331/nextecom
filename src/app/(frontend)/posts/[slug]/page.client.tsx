@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import RenderBlocks from "@/components/frontend/render-blocks";
+import type { RelatedPostSummary } from "@/lib/posts/get-related-posts";
 
 type PostClientProps = {
   post: {
@@ -17,6 +18,7 @@ type PostClientProps = {
     } | null;
     tags?: { name: string }[];
     categories?: { name: string }[];
+    relatedPosts?: RelatedPostSummary[];
   };
 };
 
@@ -80,6 +82,57 @@ export default function PostClient({ post }: PostClientProps) {
       ) : null}
 
       <RenderBlocks content={post.content} />
+
+      {post.relatedPosts && post.relatedPosts.length > 0 ? (
+        <section className="mt-12 border-t pt-8">
+          <h2 className="text-2xl font-semibold">Related Posts</h2>
+
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {post.relatedPosts.map((relatedPost) => (
+              <article
+                key={relatedPost.id}
+                className="group overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-md"
+              >
+                <Link href={`/posts/${relatedPost.slug}`} className="block">
+                  <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                    {relatedPost.featuredImage?.url ? (
+                      <Image
+                        src={relatedPost.featuredImage.url}
+                        alt={relatedPost.featuredImage.originalName}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                        No image
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4">
+                    <time
+                      dateTime={new Date(relatedPost.createdAt).toISOString()}
+                      className="text-xs text-muted-foreground"
+                    >
+                      {format(new Date(relatedPost.createdAt), "MMM d, yyyy")}
+                    </time>
+
+                    <h3 className="mt-2 text-lg font-semibold leading-snug group-hover:underline">
+                      {relatedPost.title}
+                    </h3>
+
+                    {relatedPost.author?.name ? (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        By {relatedPost.author.name}
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </article>
   );
 }

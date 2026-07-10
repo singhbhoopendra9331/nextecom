@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { axios } from "@/lib/axios";
 import { resolveSeoDescription, resolveSeoTitle } from "@/lib/meta/seo";
+import type { RelatedPostSummary } from "@/lib/posts/get-related-posts";
 import { getGlobalSettings } from "@/lib/settings";
 
 import PostClient from "./page.client";
@@ -21,6 +22,7 @@ type PostRecord = {
   tags?: { name: string }[];
   categories?: { name: string }[];
   meta: { key: string; value: string }[];
+  relatedPosts?: RelatedPostSummary[];
 };
 
 async function getPostBySlug(slug: string): Promise<PostRecord | null> {
@@ -87,6 +89,7 @@ export default async function PostPage({ params }: Args) {
         featuredImage: post.featuredImage,
         tags: post.tags,
         categories: post.categories,
+        relatedPosts: post.relatedPosts ?? [],
       }}
     />
   );
