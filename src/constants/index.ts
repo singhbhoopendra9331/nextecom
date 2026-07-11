@@ -7,6 +7,10 @@ export const READING_SETTINGS_KEY = "reading_settings";
 export const SESSION_COOKIE_NAME = "admin_session";
 export const BLOGS_PER_PAGE = 9;
 
+export const PAGINATION_DEFAULT_LIMIT = 20;
+export const PAGINATION_MAX_LIMIT = 50;
+export const PAGINATION_MAX_PAGE = 100;
+
 /* 1 hour */
 export const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 

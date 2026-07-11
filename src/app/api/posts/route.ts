@@ -1,6 +1,7 @@
 import { PostStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireApiPermission } from "@/lib/auth/require-auth";
+import { parsePaginationParams } from "@/lib/pagination";
 import { NextResponse } from "next/server";
 
 const POST_STATUSES = new Set<string>(Object.values(PostStatus));
@@ -8,8 +9,10 @@ const POST_STATUSES = new Set<string>(Object.values(PostStatus));
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
-  const page = Number(searchParams.get("page") || 1);
-  const limit = Number(searchParams.get("limit") || 20);
+  const { page, limit, skip } = parsePaginationParams(
+    searchParams.get("page"),
+    searchParams.get("limit")
+  );
   const search = searchParams.get("search") || "";
   const statusParam = searchParams.get("status") || "";
   const status = POST_STATUSES.has(statusParam)
@@ -22,8 +25,6 @@ export async function GET(req: Request) {
       return auth.response;
     }
   }
-
-  const skip = (page - 1) * limit;
 
   const where: Prisma.PostWhereInput = {
     ...(status ? { status } : {}),

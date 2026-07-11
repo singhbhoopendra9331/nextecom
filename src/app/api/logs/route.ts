@@ -1,6 +1,7 @@
 import { queryApplicationLogs } from "@/lib/logs";
 import { LogLevel } from "@/generated/prisma/client";
 import { requireApiPermission } from "@/lib/auth/require-auth";
+import { parsePaginationParams } from "@/lib/pagination";
 import { NextResponse } from "next/server";
 
 const LOG_LEVELS = new Set<string>(Object.values(LogLevel));
@@ -14,8 +15,10 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const page = Number(searchParams.get("page") || 1);
-    const limit = Number(searchParams.get("limit") || 20);
+    const { page, limit } = parsePaginationParams(
+      searchParams.get("page"),
+      searchParams.get("limit")
+    );
     const q = searchParams.get("q") || "";
     const source = searchParams.get("source") || "";
     const dateFrom = searchParams.get("dateFrom") || "";

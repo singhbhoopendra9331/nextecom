@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireApiPermission } from "@/lib/auth/require-auth";
+import { parsePaginationParams } from "@/lib/pagination";
 import { NextResponse } from "next/server";
 
 type RouteContext = {
@@ -15,9 +16,10 @@ export async function GET(req: Request, context: RouteContext) {
   const { formId } = await context.params;
   const { searchParams } = new URL(req.url);
 
-  const page = Number(searchParams.get("page") || 1);
-  const limit = Number(searchParams.get("limit") || 20);
-  const skip = (page - 1) * limit;
+  const { page, limit, skip } = parsePaginationParams(
+    searchParams.get("page"),
+    searchParams.get("limit")
+  );
 
   const form = await prisma.form.findUnique({
     where: { id: formId },

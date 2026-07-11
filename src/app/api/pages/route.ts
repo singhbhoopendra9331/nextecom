@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@/generated/prisma/client";
 import { requireApiPermission } from "@/lib/auth/require-auth";
+import { parsePaginationParams } from "@/lib/pagination";
+import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const auth = await requireApiPermission("pages:read");
@@ -11,11 +12,11 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = req.nextUrl;
 
-  const page = Number(searchParams.get("page") || 1);
-  const limit = Number(searchParams.get("limit") || 20);
+  const { page, limit, skip } = parsePaginationParams(
+    searchParams.get("page"),
+    searchParams.get("limit")
+  );
   const search = searchParams.get("search") || "";
-
-  const skip = (page - 1) * limit;
 
   const where: Prisma.PageWhereInput = search
     ? {

@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { LogLevel } from "@/generated/prisma/client";
+import { parsePaginationParams } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 import type { AppLogLevel } from "@/lib/logs/constants";
 
@@ -149,9 +150,10 @@ function buildLogWhere(filters: LogQueryFilters): Prisma.ApplicationLogWhereInpu
 }
 
 export async function queryApplicationLogs(filters: LogQueryFilters = {}) {
-  const page = Math.max(1, filters.page ?? 1);
-  const limit = Math.min(100, Math.max(1, filters.limit ?? 20));
-  const skip = (page - 1) * limit;
+  const { page, limit, skip } = parsePaginationParams(
+    filters.page?.toString() ?? null,
+    filters.limit?.toString() ?? null
+  );
   const where = buildLogWhere(filters);
 
   const [docs, total] = await Promise.all([

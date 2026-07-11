@@ -1,5 +1,6 @@
 import { CommentStatus, Prisma } from "@/generated/prisma/client";
 import { requireApiPermission } from "@/lib/auth/require-auth";
+import { parsePaginationParams } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -13,16 +14,16 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
 
-  const page = Number(searchParams.get("page") || 1);
-  const limit = Number(searchParams.get("limit") || 20);
+  const { page, limit, skip } = parsePaginationParams(
+    searchParams.get("page"),
+    searchParams.get("limit")
+  );
   const search = searchParams.get("search") || "";
   const statusParam = searchParams.get("status") || "";
   const postId = searchParams.get("postId") || "";
   const status = COMMENT_STATUSES.has(statusParam)
     ? (statusParam as CommentStatus)
     : undefined;
-
-  const skip = (page - 1) * limit;
 
   const where: Prisma.CommentWhereInput = {
     ...(status ? { status } : {}),

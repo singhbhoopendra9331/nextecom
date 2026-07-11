@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiPermission } from "@/lib/auth/require-auth";
+import { parsePaginationParams } from "@/lib/pagination";
 
 export async function GET(req: Request) {
   const auth = await requireApiPermission("media:read");
@@ -11,11 +12,11 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const page = Number(searchParams.get("page") || 1);
-    const limit = Number(searchParams.get("limit") || 20);
+    const { page, limit, skip } = parsePaginationParams(
+      searchParams.get("page"),
+      searchParams.get("limit")
+    );
     const q = searchParams.get("q") || "";
-
-    const skip = (page - 1) * limit;
 
     const where = q
       ? {
