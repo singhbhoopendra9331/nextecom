@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppToaster } from "@/components/app-toaster";
 import { SiteShell } from "@/components/frontend/site-shell";
 import { getGlobalSettings } from "@/lib/settings";
+import { AppProgressbar as ProgressBar } from "@/components/app-progressbar";
 
 import "../globals.css";
 
@@ -42,6 +43,7 @@ export default function RootLayout({
         <TooltipProvider>
           <SiteShell>{children}</SiteShell>
           <AppToaster />
+          <ProgressBar />
         </TooltipProvider>
       </body>
     </html>
