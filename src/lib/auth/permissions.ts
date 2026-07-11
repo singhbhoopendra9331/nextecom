@@ -8,6 +8,8 @@ import {
 export { ASSIGNABLE_ROLES, USER_ROLE_LABELS, UserRole, type AppUserRole };
 
 export const PERMISSIONS = {
+  "comments:read": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR, UserRole.VIEWER],
+  "comments:write": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
   "posts:read": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR, UserRole.VIEWER],
   "posts:write": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
   "pages:read": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR, UserRole.VIEWER],
@@ -35,6 +37,7 @@ const ROUTE_RULES: { prefix: string; permission: Permission }[] = [
   { prefix: "/admin/pages", permission: "pages:read" },
   { prefix: "/admin/forms", permission: "forms:read" },
   { prefix: "/admin/media", permission: "media:read" },
+  { prefix: "/admin/comments", permission: "comments:read" },
 ];
 
 export function hasPermission(role: AppUserRole, permission: Permission): boolean {

@@ -3,6 +3,7 @@ import { AxiosError } from "axios";
 import { notFound } from "next/navigation";
 
 import { axios } from "@/lib/axios";
+import { getApprovedCommentsForPost } from "@/lib/comments/get-approved-comments";
 import { resolveSeoDescription, resolveSeoTitle } from "@/lib/meta/seo";
 import type { RelatedPostSummary } from "@/lib/posts/get-related-posts";
 import { getGlobalSettings } from "@/lib/settings";
@@ -10,6 +11,8 @@ import { getGlobalSettings } from "@/lib/settings";
 import PostClient from "./page.client";
 
 type PostRecord = {
+  id: string;
+  slug: string;
   title: string;
   content: unknown;
   createdAt: string | Date;
@@ -79,9 +82,13 @@ export default async function PostPage({ params }: Args) {
     notFound();
   }
 
+  const initialComments = await getApprovedCommentsForPost(post.id);
+
   return (
     <PostClient
       post={{
+        id: post.id,
+        slug: post.slug,
         title: post.title,
         content: post.content,
         createdAt: post.createdAt,
@@ -91,6 +98,7 @@ export default async function PostPage({ params }: Args) {
         categories: post.categories,
         relatedPosts: post.relatedPosts ?? [],
       }}
+      initialComments={initialComments}
     />
   );
 }

@@ -8,6 +8,7 @@ import {
   Settings,
   ShoppingCart,
   ScrollText,
+  MessageSquareText,
 } from "lucide-react";
 
 export const data = {
@@ -85,6 +86,12 @@ export const data = {
           url: "/admin/media",
         },
       ],
+    },
+
+    {
+      title: "Comments",
+      url: "/admin/comments",
+      icon: MessageSquareText,
     },
 
     // 👥 Users

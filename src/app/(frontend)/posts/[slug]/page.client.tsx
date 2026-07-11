@@ -4,10 +4,14 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import RenderBlocks from "@/components/frontend/render-blocks";
+import PostComments from "@/components/frontend/post-comments";
 import type { RelatedPostSummary } from "@/lib/posts/get-related-posts";
+import type { PublicComment } from "@/types/comments";
 
 type PostClientProps = {
   post: {
+    id: string;
+    slug: string;
     title: string;
     content: unknown;
     createdAt: string | Date;
@@ -20,9 +24,10 @@ type PostClientProps = {
     categories?: { name: string }[];
     relatedPosts?: RelatedPostSummary[];
   };
+  initialComments: PublicComment[];
 };
 
-export default function PostClient({ post }: PostClientProps) {
+export default function PostClient({ post, initialComments }: PostClientProps) {
   const createdAt = new Date(post.createdAt);
 
   return (
@@ -83,11 +88,17 @@ export default function PostClient({ post }: PostClientProps) {
 
       <RenderBlocks content={post.content} />
 
+      <PostComments
+        postId={post.id}
+        postSlug={post.slug}
+        initialComments={initialComments}
+      />
+
       {post.relatedPosts && post.relatedPosts.length > 0 ? (
         <section className="mt-12 border-t pt-8">
           <h2 className="text-2xl font-semibold">Related Posts</h2>
 
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-4">
             {post.relatedPosts.map((relatedPost) => (
               <article
                 key={relatedPost.id}
