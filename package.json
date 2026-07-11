@@ -22,6 +22,8 @@
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@tanstack/react-query": "^5.90.21",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "axios": "^1.13.6",
     "busboy": "^1.6.0",
     "class-variance-authority": "^0.7.1",

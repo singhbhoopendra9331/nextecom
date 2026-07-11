@@ -9,6 +9,10 @@ import { getAppBaseUrl } from "@/lib/email/send-mail";
 import { sendTemplatedMail } from "@/lib/email/send-templated-mail";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+import {
+  enforceAuthRateLimit,
+  rateLimitActionError,
+} from "@/lib/rate-limit";
 
 export async function registerAction(input: {
   name?: string;
@@ -26,6 +30,11 @@ export async function registerAction(input: {
   }
 
   const email = parsed.data.email.trim().toLowerCase();
+  const rateLimited = await enforceAuthRateLimit(email);
+  if (rateLimited) {
+    return rateLimitActionError(rateLimited);
+  }
+
   const existingUsers = await prisma.user.count();
   const role = existingUsers === 0 ? UserRole.SUPER_ADMIN : UserRole.EDITOR;
 

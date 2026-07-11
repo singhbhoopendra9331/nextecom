@@ -10,6 +10,10 @@ import { getSubmissionRequestMeta } from "@/lib/forms/request-meta";
 import { sendFormNotificationEmail } from "@/lib/forms/send-notification-email";
 import { validateSubmission } from "@/lib/forms/validate-submission";
 import { prisma } from "@/lib/prisma";
+import {
+  enforceRateLimit,
+  rateLimitActionError,
+} from "@/lib/rate-limit";
 import type { SubmitFormResult } from "@/types/forms";
 
 type Input = {
@@ -20,6 +24,11 @@ type Input = {
 
 export async function submitForm(input: Input): Promise<SubmitFormResult> {
   try {
+    const rateLimited = await enforceRateLimit("submit");
+    if (rateLimited) {
+      return rateLimitActionError(rateLimited);
+    }
+
     const form = await prisma.form.findFirst({
       where: {
         slug: input.slug,

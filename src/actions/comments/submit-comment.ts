@@ -5,6 +5,10 @@ import { getSession } from "@/lib/auth/session";
 import { submitCommentSchema, type SubmitCommentInput } from "@/lib/comments/schemas";
 import { getSubmissionRequestMeta } from "@/lib/forms/request-meta";
 import { prisma } from "@/lib/prisma";
+import {
+  enforceRateLimit,
+  rateLimitActionError,
+} from "@/lib/rate-limit";
 import type { SubmitCommentResult } from "@/types/comments";
 import { revalidatePath } from "next/cache";
 
@@ -14,6 +18,11 @@ type Input = SubmitCommentInput & {
 
 export async function submitComment(input: Input): Promise<SubmitCommentResult> {
   try {
+    const rateLimited = await enforceRateLimit("submit");
+    if (rateLimited) {
+      return rateLimitActionError(rateLimited);
+    }
+
     const parsed = submitCommentSchema.safeParse(input);
 
     if (!parsed.success) {

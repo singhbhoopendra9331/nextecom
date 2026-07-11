@@ -5,6 +5,10 @@ import { redirect } from "next/navigation";
 import { resetPasswordSchema } from "@/lib/auth/schemas";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+import {
+  enforceAuthRateLimit,
+  rateLimitActionError,
+} from "@/lib/rate-limit";
 
 export async function resetPasswordAction(
   token: string,
@@ -17,6 +21,11 @@ export async function resetPasswordAction(
       success: false as const,
       error: parsed.error.issues[0]?.message ?? "Invalid input",
     };
+  }
+
+  const rateLimited = await enforceAuthRateLimit();
+  if (rateLimited) {
+    return rateLimitActionError(rateLimited);
   }
 
   const resetToken = await prisma.passwordResetToken.findUnique({

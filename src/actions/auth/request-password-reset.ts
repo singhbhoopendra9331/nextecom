@@ -7,6 +7,10 @@ import { getAppBaseUrl } from "@/lib/email/send-mail";
 import { sendTemplatedMail } from "@/lib/email/send-templated-mail";
 import { prisma } from "@/lib/prisma";
 import { RESET_TOKEN_TTL_MS } from "@/constants/index";
+import {
+  enforceAuthRateLimit,
+  rateLimitActionError,
+} from "@/lib/rate-limit";
 
 export async function requestPasswordResetAction(input: { email: string }) {
   const parsed = requestPasswordResetSchema.safeParse(input);
@@ -19,6 +23,11 @@ export async function requestPasswordResetAction(input: { email: string }) {
   }
 
   const email = parsed.data.email.trim().toLowerCase();
+  const rateLimited = await enforceAuthRateLimit(email);
+  if (rateLimited) {
+    return rateLimitActionError(rateLimited);
+  }
+
   const user = await prisma.user.findUnique({
     where: { email },
     select: { id: true, email: true },

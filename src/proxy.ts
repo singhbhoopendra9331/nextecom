@@ -3,6 +3,11 @@ import type { NextRequest } from "next/server";
 
 import { getSessionFromRequest } from "@/lib/auth/session-token";
 import {
+  enforceRateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
+import { getIdentifierFromRequest } from "@/lib/rate-limit/identifier";
+import {
   findRedirectRule,
   getActiveRedirectRules,
 } from "@/lib/redirects";
@@ -36,6 +41,25 @@ function buildRedirectDestination(request: NextRequest, target: string) {
   destination.search = request.nextUrl.search;
 
   return destination;
+}
+
+async function handleApiRateLimit(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname === "/api/health") {
+    return null;
+  }
+
+  const blocked = await enforceRateLimit(
+    "api",
+    getIdentifierFromRequest(request)
+  );
+
+  if (blocked) {
+    return rateLimitResponse(blocked);
+  }
+
+  return null;
 }
 
 async function applyConfiguredRedirect(request: NextRequest) {
@@ -85,6 +109,13 @@ async function handleAdminRequest(request: NextRequest) {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/api/")) {
+    const rateLimited = await handleApiRateLimit(request);
+    if (rateLimited) {
+      return rateLimited;
+    }
+  }
 
   if (!pathname.startsWith("/admin")) {
     const redirectResponse = await applyConfiguredRedirect(request);

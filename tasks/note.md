@@ -11,3 +11,5 @@ related posts
 add connection test
 add next-progressbar
 comments with thread support
+limit this query params
+rate limiting
