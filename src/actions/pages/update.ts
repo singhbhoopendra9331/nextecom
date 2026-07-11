@@ -3,6 +3,7 @@ import { PostStatus } from "@/generated/prisma/client";
 import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import { syncSeoMeta, type SeoInput } from "@/lib/meta/seo";
 import { prisma } from "@/lib/prisma";
+import { sanitizeBlockContent } from "@/lib/sanitize-json-for-prisma";
 
 type Input = {
   title: string;
@@ -32,7 +33,7 @@ export async function updatePage(id: string, data: Input) {
         where: { id },
         data: {
           title: data.title,
-          content: data.content ?? [],
+          content: sanitizeBlockContent(data.content),
           featuredImageId: data.featuredImageId ?? null,
           status: data.status ?? PostStatus.DRAFT,
         },

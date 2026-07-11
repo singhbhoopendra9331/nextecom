@@ -4,6 +4,7 @@ import { PostStatus } from "@/generated/prisma/client";
 import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import { syncSeoMeta, type SeoInput } from "@/lib/meta/seo";
 import { prisma } from "@/lib/prisma";
+import { sanitizeBlockContent } from "@/lib/sanitize-json-for-prisma";
 import slugify from "slugify";
 
 type Input = {
@@ -35,7 +36,7 @@ export async function createPage(data: Input) {
         data: {
           title: data.title,
           slug,
-          content: data.content ?? [],
+          content: sanitizeBlockContent(data.content),
           featuredImageId: data.featuredImageId,
           status: data.status ?? PostStatus.DRAFT,
         },

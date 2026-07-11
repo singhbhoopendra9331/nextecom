@@ -1,10 +1,12 @@
 "use server";
 
 import { PostStatus } from "@/generated/prisma/client";
+import { InputJsonObject } from "@/generated/prisma/internal/prismaNamespace";
 import { authErrorResult, authorize } from "@/lib/auth/require-auth";
 import { syncRelatedPostsMeta } from "@/lib/meta/related-posts";
 import { syncSeoMeta, type SeoInput } from "@/lib/meta/seo";
 import { prisma } from "@/lib/prisma";
+import { sanitizeBlockContent } from "@/lib/sanitize-json-for-prisma";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
 
@@ -50,7 +52,7 @@ export async function updatePost(id: string, data: Input) {
         data: {
           title: data.title,
           slug,
-          content: Array.isArray(data.content) ? data.content : [],
+          content: sanitizeBlockContent(data.content) as unknown as InputJsonObject | undefined,
           authorId: data.authorId,
           featuredImageId: data.featuredImageId ?? null,
           status: data.status ?? PostStatus.DRAFT,
