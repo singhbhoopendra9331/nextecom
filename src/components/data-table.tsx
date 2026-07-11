@@ -127,7 +127,7 @@ export function DataTable<T>({
   const showPagination = pagination && onPageChange;
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("min-w-0 space-y-4", className)}>
       {showHeader ? (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
@@ -154,7 +154,7 @@ export function DataTable<T>({
         </div>
       ) : null}
 
-      <div className="relative w-full overflow-x-auto rounded-md border">
+      <div className="relative min-w-0 w-full rounded-md border">
         {isLoading ? (
           <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-background/60">
             <span className="text-sm text-muted-foreground">Loading...</span>
