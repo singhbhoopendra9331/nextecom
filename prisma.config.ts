@@ -18,6 +18,6 @@ export default defineConfig({
   datasource: {
     // Prisma CLI (migrate, studio, introspect) needs a direct/session connection.
     // App runtime uses DATABASE_URL (pooled) via src/lib/prisma.ts.
-    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
+    url: process.env["DATABASE_URL"],
   },
 });
