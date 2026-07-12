@@ -165,7 +165,7 @@ export default function UserForm({
         {assignableRoles.length > 0 ? (
           <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
-            <Select value={role} onValueChange={(value) => setRole(value as AppUserRole)}>
+            <Select value={role} name="role" onValueChange={(value) => setRole(value as AppUserRole)}>
               <SelectTrigger id="role" className="w-full">
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>

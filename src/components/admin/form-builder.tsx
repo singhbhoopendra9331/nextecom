@@ -131,6 +131,7 @@ export default function FormBuilder({ fields, onChange }: FormBuilderProps) {
             <div className="grid gap-3 sm:grid-cols-2">
               <AppSelect
                 label="Type"
+                name={`fields.${index}.type`}
                 value={field.type}
                 onValueChange={(value) =>
                   onChange(
@@ -176,6 +177,7 @@ export default function FormBuilder({ fields, onChange }: FormBuilderProps) {
                 {(field.options ?? []).map((option, optionIndex) => (
                   <div key={optionIndex} className="flex items-center gap-2">
                     <Input
+                      id={`field-option-label-${field.id}-${optionIndex}`}
                       value={option.label}
                       onChange={(event) =>
                         updateFieldOptions(field, optionIndex, {
@@ -191,6 +193,7 @@ export default function FormBuilder({ fields, onChange }: FormBuilderProps) {
                       placeholder="Label"
                     />
                     <Input
+                      id={`field-option-value-${field.id}-${optionIndex}`}
                       value={option.value}
                       onChange={(event) =>
                         updateFieldOptions(field, optionIndex, {

@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 import { FieldBase } from "./field-base";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 type DateFieldInnerProps = FieldCommonProps & {
   value?: Date;
@@ -73,6 +74,7 @@ function DateFieldInner({
               disabled={disabled}
               aria-invalid={controlProps["aria-invalid"]}
               aria-describedby={controlProps["aria-describedby"]}
+              aria-required={controlProps["aria-required"]}
               className={cn(
                 "w-full justify-start text-left font-normal",
                 !selectedDate && "text-muted-foreground",
@@ -118,9 +120,12 @@ export function DateField<
   control,
   rules,
   error,
+  required,
   onChange,
   ...props
 }: DateFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -130,6 +135,7 @@ export function DateField<
         render={({ field, fieldState }) => (
           <DateFieldInner
             {...props}
+            required={isRequired}
             value={field.value}
             onChange={(date) => {
               field.onChange(date);
@@ -146,6 +152,7 @@ export function DateField<
   return (
     <DateFieldInner
       {...props}
+      required={isRequired}
       error={error}
       onChange={onChange}
     />

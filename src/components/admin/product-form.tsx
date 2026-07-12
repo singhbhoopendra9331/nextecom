@@ -7,11 +7,16 @@ import { useEffect, useMemo, useState } from "react";
 import { createProduct } from "@/actions/products/create-product";
 import { updateProduct } from "@/actions/products/update-product";
 import Editor from "@/components/editor";
-import { CheckboxField, MultiSelectField, TextareaField } from "@/components/form";
+import {
+  CheckboxField,
+  MultiSelectField,
+  SelectField,
+  TextareaField,
+  TextField,
+} from "@/components/form";
 import { MediaPicker } from "@/components/media-picker";
-import { AppSelect, type SelectOption } from "@/components/select";
+import { type SelectOption } from "@/components/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   BackorderMode,
   CatalogVisibility,
@@ -190,7 +195,9 @@ export default function ProductForm({
     }
   }, [title, slugTouched]);
 
-  async function handleSubmit() {
+  async function handleSubmit(event?: React.FormEvent) {
+    event?.preventDefault();
+
     if (!title.trim()) {
       toast.error("Title is required");
       return;
@@ -263,32 +270,43 @@ export default function ProductForm({
         </Button>
       </div>
 
-      <div className="grid grid-cols-12 gap-4">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-12 gap-4"
+        noValidate
+      >
+        <input
+          type="hidden"
+          name="featuredImageId"
+          value={featuredImageId ?? ""}
+          readOnly
+        />
+
         <div className="col-span-12 md:col-span-8 space-y-6 border-r pr-4">
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <Input
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="Product title"
-              />
-            </div>
+            <TextField
+              label="Title"
+              name="title"
+              required
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Product title"
+            />
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Slug</label>
-              <Input
-                value={slug}
-                onChange={(event) => {
-                  setSlugTouched(true);
-                  setSlug(event.target.value);
-                }}
-                placeholder="product-slug"
-              />
-            </div>
+            <TextField
+              label="Slug"
+              name="slug"
+              value={slug}
+              onChange={(event) => {
+                setSlugTouched(true);
+                setSlug(event.target.value);
+              }}
+              placeholder="product-slug"
+            />
 
             <TextareaField
               label="Short description"
+              name="shortDescription"
               value={shortDescription}
               onChange={(event) => setShortDescription(event.target.value)}
               placeholder="Brief summary shown in listings"
@@ -310,105 +328,89 @@ export default function ProductForm({
           <div className="space-y-4">
             <SectionHeading>Pricing</SectionHeading>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Regular price
-                </label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={regularPrice}
-                  onChange={(event) => setRegularPrice(event.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Sale price
-                </label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={salePrice}
-                  onChange={(event) => setSalePrice(event.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Cost price
-                </label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={costPrice}
-                  onChange={(event) => setCostPrice(event.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Tax class
-                </label>
-                <Input
-                  value={taxClass}
-                  onChange={(event) => setTaxClass(event.target.value)}
-                  placeholder="standard"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Currency
-                </label>
-                <Input
-                  value={currency}
-                  onChange={(event) => setCurrency(event.target.value)}
-                  placeholder="USD"
-                />
-              </div>
+              <TextField
+                label="Regular price"
+                name="regularPrice"
+                type="number"
+                min="0"
+                step="0.01"
+                value={regularPrice}
+                onChange={(event) => setRegularPrice(event.target.value)}
+              />
+              <TextField
+                label="Sale price"
+                name="salePrice"
+                type="number"
+                min="0"
+                step="0.01"
+                value={salePrice}
+                onChange={(event) => setSalePrice(event.target.value)}
+              />
+              <TextField
+                label="Cost price"
+                name="costPrice"
+                type="number"
+                min="0"
+                step="0.01"
+                value={costPrice}
+                onChange={(event) => setCostPrice(event.target.value)}
+              />
+              <TextField
+                label="Tax class"
+                name="taxClass"
+                value={taxClass}
+                onChange={(event) => setTaxClass(event.target.value)}
+                placeholder="standard"
+              />
+              <TextField
+                label="Currency"
+                name="currency"
+                value={currency}
+                onChange={(event) => setCurrency(event.target.value)}
+                placeholder="USD"
+              />
             </div>
           </div>
 
           <div className="space-y-4">
             <SectionHeading>Inventory</SectionHeading>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">SKU</label>
-                <Input
-                  value={sku}
-                  onChange={(event) => setSku(event.target.value)}
-                  placeholder="SKU-001"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Quantity
-                </label>
-                <Input
-                  type="number"
-                  min="0"
-                  value={quantity}
-                  onChange={(event) => setQuantity(event.target.value)}
-                  disabled={!manageStock}
-                />
-              </div>
+              <TextField
+                label="SKU"
+                name="sku"
+                value={sku}
+                onChange={(event) => setSku(event.target.value)}
+                placeholder="SKU-001"
+              />
+              <TextField
+                label="Quantity"
+                name="quantity"
+                type="number"
+                min="0"
+                value={quantity}
+                onChange={(event) => setQuantity(event.target.value)}
+                disabled={!manageStock}
+              />
             </div>
 
             <CheckboxField
               label="Manage stock"
+              name="manageStock"
               checked={manageStock}
               onCheckedChange={setManageStock}
             />
 
-            <AppSelect
+            <SelectField
               label="Stock status"
+              name="stockStatus"
               options={stockStatusOptions}
               value={stockStatus}
               onValueChange={(value) => setStockStatus(value as StockStatus)}
             />
 
-            <AppSelect
+            <SelectField
               label="Allow backorders"
+              name="allowBackorder"
               options={backorderOptions}
               value={allowBackorder}
               onValueChange={(value) =>
@@ -420,67 +422,66 @@ export default function ProductForm({
           <div className="space-y-4">
             <SectionHeading>Shipping</SectionHeading>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Weight</label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.001"
-                  value={weight}
-                  onChange={(event) => setWeight(event.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Length</label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={length}
-                  onChange={(event) => setLength(event.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Width</label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={width}
-                  onChange={(event) => setWidth(event.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Height</label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={height}
-                  onChange={(event) => setHeight(event.target.value)}
-                />
-              </div>
+              <TextField
+                label="Weight"
+                name="weight"
+                type="number"
+                min="0"
+                step="0.001"
+                value={weight}
+                onChange={(event) => setWeight(event.target.value)}
+              />
+              <TextField
+                label="Length"
+                name="length"
+                type="number"
+                min="0"
+                step="0.01"
+                value={length}
+                onChange={(event) => setLength(event.target.value)}
+              />
+              <TextField
+                label="Width"
+                name="width"
+                type="number"
+                min="0"
+                step="0.01"
+                value={width}
+                onChange={(event) => setWidth(event.target.value)}
+              />
+              <TextField
+                label="Height"
+                name="height"
+                type="number"
+                min="0"
+                step="0.01"
+                value={height}
+                onChange={(event) => setHeight(event.target.value)}
+              />
             </div>
           </div>
         </div>
 
         <div className="col-span-12 md:col-span-4 space-y-4">
-          <AppSelect
+          <SelectField
             label="Product type"
+            name="type"
             options={typeOptions}
             value={type}
             onValueChange={(value) => setType(value as ProductType)}
           />
 
-          <AppSelect
+          <SelectField
             label="Status"
+            name="status"
             options={statusOptions}
             value={status}
             onValueChange={(value) => setStatus(value as ProductStatus)}
           />
 
-          <AppSelect
+          <SelectField
             label="Catalog visibility"
+            name="catalogVisibility"
             options={visibilityOptions}
             value={catalogVisibility}
             onValueChange={(value) =>
@@ -490,21 +491,22 @@ export default function ProductForm({
 
           <CheckboxField
             label="Featured product"
+            name="isFeatured"
             checked={isFeatured}
             onCheckedChange={setIsFeatured}
           />
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Menu order</label>
-            <Input
-              type="number"
-              value={menuOrder}
-              onChange={(event) => setMenuOrder(event.target.value)}
-            />
-          </div>
+          <TextField
+            label="Menu order"
+            name="menuOrder"
+            type="number"
+            value={menuOrder}
+            onChange={(event) => setMenuOrder(event.target.value)}
+          />
 
-          <AppSelect
+          <SelectField
             label="Brand"
+            name="brandId"
             options={brandOptions}
             value={brandId || NO_BRAND_VALUE}
             onValueChange={setBrandId}
@@ -512,6 +514,7 @@ export default function ProductForm({
 
           <MultiSelectField
             label="Categories"
+            name="categoryIds"
             options={categoryOptions}
             value={categoryIds}
             onChange={setCategoryIds}
@@ -521,6 +524,7 @@ export default function ProductForm({
 
           <MultiSelectField
             label="Tags"
+            name="tagIds"
             options={tagOptions}
             value={tagIds}
             onChange={setTagIds}
@@ -543,42 +547,38 @@ export default function ProductForm({
 
           <CheckboxField
             label="Enable reviews"
+            name="enableReviews"
             checked={enableReviews}
             onCheckedChange={setEnableReviews}
           />
 
           <div className="space-y-3 rounded-lg border p-4">
             <h3 className="text-sm font-medium">SEO</h3>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Meta title
-              </label>
-              <Input
-                value={metaTitle}
-                onChange={(event) => setMetaTitle(event.target.value)}
-                placeholder="Leave blank to use product title"
-              />
-            </div>
+            <TextField
+              label="Meta title"
+              name="metaTitle"
+              value={metaTitle}
+              onChange={(event) => setMetaTitle(event.target.value)}
+              placeholder="Leave blank to use product title"
+            />
             <TextareaField
               label="Meta description"
+              name="metaDescription"
               value={metaDescription}
               onChange={(event) => setMetaDescription(event.target.value)}
               rows={3}
             />
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Canonical URL
-              </label>
-              <Input
-                value={canonicalUrl}
-                onChange={(event) => setCanonicalUrl(event.target.value)}
-                placeholder="https://example.com/products/item"
-              />
-            </div>
+            <TextField
+              label="Canonical URL"
+              name="canonicalUrl"
+              value={canonicalUrl}
+              onChange={(event) => setCanonicalUrl(event.target.value)}
+              placeholder="https://example.com/products/item"
+            />
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={handleSubmit} disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? mode === "create"
                   ? "Saving..."
@@ -589,7 +589,7 @@ export default function ProductForm({
             </Button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

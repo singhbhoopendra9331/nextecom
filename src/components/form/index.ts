@@ -1,4 +1,6 @@
-export { FieldBase } from "./field-base";
+export { FieldBase, FieldLabelContent } from "./field-base";
+export { RequiredMark } from "./required-mark";
+export { resolveFieldRequired } from "./utils";
 export { CheckboxField, type CheckboxFieldProps } from "./checkbox-field";
 export { DateField, type DateFieldProps } from "./date-field";
 export {

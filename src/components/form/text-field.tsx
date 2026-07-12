@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 import { FieldBase } from "./field-base";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 type TextFieldInputProps = Omit<
   React.ComponentProps<"input">,
@@ -71,8 +72,9 @@ export function TextFieldInner({
           {...inputProps}
           ref={ref}
           type={type}
-          name={name}
+          name={name ?? controlProps.id}
           disabled={disabled}
+          required={required}
           className={cn(
             error && "border-destructive",
             inputClassName,
@@ -95,8 +97,11 @@ export function TextField<
   control,
   rules,
   error,
+  required,
   ...props
 }: TextFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -106,6 +111,7 @@ export function TextField<
         render={({ field, fieldState }) => (
           <TextFieldInner
             {...props}
+            required={isRequired}
             name={field.name}
             value={field.value ?? ""}
             onChange={field.onChange}
@@ -118,5 +124,12 @@ export function TextField<
     );
   }
 
-  return <TextFieldInner {...props} name={name} error={error} />;
+  return (
+    <TextFieldInner
+      {...props}
+      required={isRequired}
+      name={name}
+      error={error}
+    />
+  );
 }

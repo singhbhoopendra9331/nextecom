@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 import { FieldBase } from "./field-base";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 export type { SelectOption, SelectOptionGroup };
 
@@ -91,7 +92,7 @@ function SelectFieldInner({
       {(controlProps) => (
         <Select
           {...selectProps}
-          name={name}
+          name={name ?? controlProps.id}
           disabled={disabled}
           onValueChange={(nextValue) => {
             onValueChange?.(nextValue);
@@ -106,6 +107,7 @@ function SelectFieldInner({
             id={controlProps.id}
             aria-invalid={controlProps["aria-invalid"]}
             aria-describedby={controlProps["aria-describedby"]}
+            aria-required={controlProps["aria-required"]}
             className={cn(
               "w-full",
               error && "border-destructive",
@@ -139,9 +141,12 @@ export function SelectField<
   control,
   rules,
   error,
+  required,
   onValueChange,
   ...props
 }: SelectFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -151,6 +156,7 @@ export function SelectField<
         render={({ field, fieldState }) => (
           <SelectFieldInner
             {...props}
+            required={isRequired}
             name={field.name}
             value={field.value ?? ""}
             onValueChange={(nextValue) => {
@@ -168,6 +174,7 @@ export function SelectField<
   return (
     <SelectFieldInner
       {...props}
+      required={isRequired}
       name={name}
       error={error}
       onValueChange={onValueChange}

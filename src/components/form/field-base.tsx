@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 
 import {
   Field,
@@ -11,11 +11,27 @@ import {
 } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
+import { RequiredMark } from "./required-mark";
 import type { FieldCommonProps, FieldControlProps } from "./types";
 
 type FieldBaseProps = FieldCommonProps & {
   children: (controlProps: FieldControlProps) => React.ReactNode;
 };
+
+export function FieldLabelContent({
+  label,
+  required,
+}: {
+  label: ReactNode;
+  required?: boolean;
+}) {
+  return (
+    <>
+      {label}
+      {required ? <RequiredMark /> : null}
+    </>
+  );
+}
 
 export function FieldBase({
   id: idProp,
@@ -38,13 +54,7 @@ export function FieldBase({
     <Field className={cn(className)} data-invalid={!!error}>
       {label ? (
         <FieldLabel htmlFor={id}>
-          {label}
-          {required ? (
-            <span aria-hidden="true" className="text-destructive">
-              {" "}
-              *
-            </span>
-          ) : null}
+          <FieldLabelContent label={label} required={required} />
         </FieldLabel>
       ) : null}
 
@@ -53,6 +63,7 @@ export function FieldBase({
           id,
           "aria-invalid": !!error || undefined,
           "aria-describedby": describedBy,
+          "aria-required": required || undefined,
         })}
 
         {helpText ? (

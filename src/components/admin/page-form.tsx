@@ -120,6 +120,7 @@ export default function PageForm({
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Title</label>
             <Input
+              id="title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -141,6 +142,7 @@ export default function PageForm({
         <div className="col-span-12 md:col-span-4 space-y-4">
           <AppSelect
             label="Status"
+            name="status"
             placeholder="Select status"
             options={statusOptions}
             value={status}

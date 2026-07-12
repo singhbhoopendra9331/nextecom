@@ -298,6 +298,7 @@ export default function LogsPageClient({
 
         <AppSelect
           label="Level"
+          name="level"
           value={level}
           onValueChange={setLevel}
           options={LEVEL_OPTIONS}

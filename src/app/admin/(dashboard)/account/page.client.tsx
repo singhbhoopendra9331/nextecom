@@ -102,6 +102,7 @@ export default function AccountPageClient({
       >
         <TextField
           id="role"
+          name="role"
           label="Role"
           value={USER_ROLE_LABELS[initialValues.role]}
           disabled

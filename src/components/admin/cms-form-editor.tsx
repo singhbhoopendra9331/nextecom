@@ -128,6 +128,7 @@ export default function CmsFormEditor({
             <Label htmlFor="form-title">Title</Label>
             <Input
               id="form-title"
+              name="title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Contact form"
@@ -138,6 +139,7 @@ export default function CmsFormEditor({
             <Label htmlFor="form-slug">Slug</Label>
             <Input
               id="form-slug"
+              name="slug"
               value={slug}
               onChange={(event) => setSlug(event.target.value)}
               placeholder="contact (auto-generated if empty)"
@@ -153,6 +155,7 @@ export default function CmsFormEditor({
         <div className="col-span-12 space-y-4 lg:col-span-4">
           <AppSelect
             label="Status"
+            name="status"
             value={status}
             onValueChange={(value) => setStatus(value as FormStatus)}
             options={STATUS_OPTIONS}

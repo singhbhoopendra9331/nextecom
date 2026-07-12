@@ -209,6 +209,7 @@ export default function PostForm({
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Title</label>
             <Input
+              id="title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -230,6 +231,7 @@ export default function PostForm({
         <div className="col-span-12 md:col-span-4 space-y-4">
           <AppSelect
             label="Author"
+            name="authorId"
             placeholder={
               isLoadingAuthors ? "Loading authors..." : "Select author"
             }
@@ -241,6 +243,7 @@ export default function PostForm({
 
           <AppSelect
             label="Status"
+            name="status"
             options={statusOptions}
             value={status}
             onValueChange={(value) => setStatus(value as PostStatus)}
@@ -248,6 +251,7 @@ export default function PostForm({
 
           <MultiSelectField
             label="Tags"
+            name="tagIds"
             options={tagOptions}
             value={tagIds}
             onChange={setTagIds}
@@ -257,6 +261,7 @@ export default function PostForm({
 
           <MultiSelectField
             label="Categories"
+            name="categoryIds"
             options={categoryOptions}
             value={categoryIds}
             onChange={setCategoryIds}
@@ -266,6 +271,7 @@ export default function PostForm({
 
           <MultiSelectField
             label="Related Posts"
+            name="relatedPostIds"
             options={postOptions}
             value={relatedPostIds}
             onChange={setRelatedPostIds}

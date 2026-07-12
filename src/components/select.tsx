@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useId } from "react";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -26,6 +27,7 @@ export type SelectOptionGroup = {
 };
 
 type AppSelectProps = {
+  id?: string;
   placeholder?: string;
   options?: SelectOption[];
   groups?: SelectOptionGroup[];
@@ -53,6 +55,7 @@ function renderOptions(options: SelectOption[]) {
 }
 
 export function AppSelect({
+  id: idProp,
   placeholder,
   options,
   groups,
@@ -66,6 +69,9 @@ export function AppSelect({
   name,
   size = "default",
 }: AppSelectProps) {
+  const generatedId = useId();
+  const fieldId = idProp ?? name ?? generatedId;
+  const fieldName = name ?? fieldId;
   const [internalValue, setInternalValue] = React.useState(defaultValue ?? "");
   const isControlled = value !== undefined;
   const selectedValue = isControlled ? value : internalValue;
@@ -94,15 +100,19 @@ export function AppSelect({
 
   return (
     <div className={cn("space-y-2", className)}>
-      {label ? <Label>{label}</Label> : null}
+      {label ? <Label htmlFor={fieldId}>{label}</Label> : null}
 
       <Select
         {...selectProps}
         onValueChange={handleValueChange}
         disabled={disabled}
-        name={name}
+        name={fieldName}
       >
-        <SelectTrigger className={cn("w-full", triggerClassName)} size={size}>
+        <SelectTrigger
+          id={fieldId}
+          className={cn("w-full", triggerClassName)}
+          size={size}
+        >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>{content}</SelectContent>

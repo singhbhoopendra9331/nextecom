@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 import { FieldBase } from "./field-base";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 export type MultiSelectOption = {
   value: string;
@@ -119,7 +120,7 @@ function MultiSelectFieldInner({
         ) : (
           <ReactSelect
             inputId={controlProps.id}
-            name={name}
+            name={name ?? controlProps.id}
             instanceId={controlProps.id}
             isMulti
             isClearable
@@ -134,6 +135,7 @@ function MultiSelectFieldInner({
             maxMenuHeight={maxMenuHeight}
             aria-invalid={controlProps["aria-invalid"]}
             aria-describedby={controlProps["aria-describedby"]}
+            aria-required={controlProps["aria-required"]}
             classNames={{
               ...multiSelectClassNames,
               control: (state) =>
@@ -171,9 +173,12 @@ export function MultiSelectField<
   control,
   rules,
   error,
+  required,
   onChange,
   ...props
 }: MultiSelectFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -183,6 +188,7 @@ export function MultiSelectField<
         render={({ field, fieldState }) => (
           <MultiSelectFieldInner
             {...props}
+            required={isRequired}
             name={field.name}
             value={field.value ?? []}
             onChange={(nextValue) => {
@@ -200,6 +206,7 @@ export function MultiSelectField<
   return (
     <MultiSelectFieldInner
       {...props}
+      required={isRequired}
       name={name}
       error={error}
       onChange={onChange}

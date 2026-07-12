@@ -12,7 +12,9 @@ import {
 } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
+import { FieldLabelContent } from "./field-base";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 type CheckboxFieldInnerProps = FieldCommonProps & {
   checked?: boolean;
@@ -53,10 +55,11 @@ function CheckboxFieldInner({
     >
       <Checkbox
         id={id}
-        name={name}
+        name={name ?? id}
         disabled={disabled}
         aria-invalid={!!error || undefined}
         aria-describedby={describedBy}
+        aria-required={required || undefined}
         className={cn(error && "border-destructive", inputClassName)}
         {...(isControlled
           ? { checked, onCheckedChange }
@@ -67,13 +70,7 @@ function CheckboxFieldInner({
       <FieldContent>
         {label ? (
           <FieldLabel htmlFor={id}>
-            {label}
-            {required ? (
-              <span aria-hidden="true" className="text-destructive">
-                {" "}
-                *
-              </span>
-            ) : null}
+            <FieldLabelContent label={label} required={required} />
           </FieldLabel>
         ) : null}
 
@@ -103,9 +100,12 @@ export function CheckboxField<
   control,
   rules,
   error,
+  required,
   onCheckedChange,
   ...props
 }: CheckboxFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -115,6 +115,7 @@ export function CheckboxField<
         render={({ field, fieldState }) => (
           <CheckboxFieldInner
             {...props}
+            required={isRequired}
             name={field.name}
             checked={!!field.value}
             onCheckedChange={(checked) => {
@@ -132,6 +133,7 @@ export function CheckboxField<
   return (
     <CheckboxFieldInner
       {...props}
+      required={isRequired}
       name={name}
       error={error}
       onCheckedChange={onCheckedChange}

@@ -140,6 +140,7 @@ export default function SmtpSettingsForm({
 
           <AppSelect
             label="Encryption"
+            name="encryption"
             value={settings.encryption}
             onValueChange={(value) =>
               updateField("encryption", value as SmtpEncryption)

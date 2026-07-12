@@ -4,6 +4,7 @@ import { Controller, type FieldPath, type FieldValues } from "react-hook-form";
 
 import { TextFieldInner } from "./text-field";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 type EmailFieldInputProps = Omit<
   React.ComponentProps<"input">,
@@ -49,8 +50,11 @@ export function EmailField<
   control,
   rules,
   error,
+  required,
   ...props
 }: EmailFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -60,6 +64,7 @@ export function EmailField<
         render={({ field, fieldState }) => (
           <EmailFieldInner
             {...props}
+            required={isRequired}
             name={field.name}
             value={field.value ?? ""}
             onChange={field.onChange}
@@ -72,5 +77,12 @@ export function EmailField<
     );
   }
 
-  return <EmailFieldInner {...props} name={name} error={error} />;
+  return (
+    <EmailFieldInner
+      {...props}
+      required={isRequired}
+      name={name}
+      error={error}
+    />
+  );
 }

@@ -146,6 +146,8 @@ export function DataTable<T>({
         <div className="relative max-w-sm">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
+            id="search"
+            name="search"
             value={searchValue ?? ""}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={searchPlaceholder}

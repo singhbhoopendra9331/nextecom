@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 import { FieldBase } from "./field-base";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 export type UploadFieldValue = MediaPickerValue | null;
 
@@ -54,7 +55,8 @@ function UploadFieldInner({
           id={controlProps.id}
           aria-invalid={controlProps["aria-invalid"]}
           aria-describedby={controlProps["aria-describedby"]}
-          data-name={name}
+          aria-required={controlProps["aria-required"]}
+          data-name={name ?? controlProps.id}
           className={cn(
             disabled && "pointer-events-none opacity-50",
             error && "[&>div>div]:border-destructive",
@@ -90,9 +92,12 @@ export function UploadField<
   control,
   rules,
   error,
+  required,
   onChange,
   ...props
 }: UploadFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -102,6 +107,7 @@ export function UploadField<
         render={({ field, fieldState }) => (
           <UploadFieldInner
             {...props}
+            required={isRequired}
             name={field.name}
             value={field.value ?? null}
             onChange={(media) => {
@@ -119,6 +125,7 @@ export function UploadField<
   return (
     <UploadFieldInner
       {...props}
+      required={isRequired}
       name={name}
       error={error}
       onChange={onChange}

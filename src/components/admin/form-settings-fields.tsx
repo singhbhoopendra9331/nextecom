@@ -42,6 +42,7 @@ export default function FormSettingsFields({
 
         <AppSelect
           label="Submit behavior"
+          name="submitMode"
           value={submit.mode}
           onValueChange={(value) =>
             onSubmitChange({

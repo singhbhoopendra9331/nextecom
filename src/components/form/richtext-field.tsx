@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 import { FieldBase } from "./field-base";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 type RichtextFieldInnerProps = FieldCommonProps & {
   value?: unknown;
@@ -52,7 +53,8 @@ function RichtextFieldInner({
           id={controlProps.id}
           aria-invalid={controlProps["aria-invalid"]}
           aria-describedby={controlProps["aria-describedby"]}
-          data-name={name}
+          aria-required={controlProps["aria-required"]}
+          data-name={name ?? controlProps.id}
           className={cn(
             disabled && "pointer-events-none opacity-50",
             error && "[&_.bn-editor]:border-destructive",
@@ -89,10 +91,13 @@ export function RichtextField<
   control,
   rules,
   error,
+  required,
   editorKey,
   onChange,
   ...props
 }: RichtextFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -102,6 +107,7 @@ export function RichtextField<
         render={({ field, fieldState }) => (
           <RichtextFieldInner
             {...props}
+            required={isRequired}
             name={field.name}
             editorKey={editorKey ?? field.name}
             value={field.value}
@@ -120,6 +126,7 @@ export function RichtextField<
   return (
     <RichtextFieldInner
       {...props}
+      required={isRequired}
       name={name}
       editorKey={editorKey ?? name}
       error={error}

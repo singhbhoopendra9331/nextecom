@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 import { FieldBase } from "./field-base";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 export type { DateRange };
 
@@ -94,6 +95,7 @@ function DateRangeFieldInner({
               disabled={disabled}
               aria-invalid={controlProps["aria-invalid"]}
               aria-describedby={controlProps["aria-describedby"]}
+              aria-required={controlProps["aria-required"]}
               className={cn(
                 "w-full justify-start text-left font-normal",
                 !selectedRange?.from && "text-muted-foreground",
@@ -140,9 +142,12 @@ export function DateRangeField<
   control,
   rules,
   error,
+  required,
   onChange,
   ...props
 }: DateRangeFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -152,6 +157,7 @@ export function DateRangeField<
         render={({ field, fieldState }) => (
           <DateRangeFieldInner
             {...props}
+            required={isRequired}
             value={field.value}
             onChange={(range) => {
               field.onChange(range);
@@ -168,6 +174,7 @@ export function DateRangeField<
   return (
     <DateRangeFieldInner
       {...props}
+      required={isRequired}
       error={error}
       onChange={onChange}
     />

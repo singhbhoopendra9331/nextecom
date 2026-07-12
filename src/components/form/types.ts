@@ -29,4 +29,5 @@ export type FieldControlProps = {
   id: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
+  "aria-required"?: boolean;
 };

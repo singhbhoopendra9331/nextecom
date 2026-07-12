@@ -21,6 +21,7 @@ export function SeoFields({
 
       <TextField
         label="Meta title"
+        name="metaTitle"
         value={value.title ?? ""}
         onChange={(event) =>
           onChange({ ...value, title: event.target.value })
@@ -30,6 +31,7 @@ export function SeoFields({
 
       <TextareaField
         label="Meta description"
+        name="metaDescription"
         value={value.description ?? ""}
         onChange={(event) =>
           onChange({ ...value, description: event.target.value })

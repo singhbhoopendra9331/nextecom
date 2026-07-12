@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 import { FieldBase } from "./field-base";
 import type { FieldCommonProps, ReactHookFormFieldProps } from "./types";
+import { resolveFieldRequired } from "./utils";
 
 type TextareaFieldInputProps = Omit<
   React.ComponentProps<"textarea">,
@@ -67,8 +68,9 @@ function TextareaFieldInner({
           {...controlProps}
           {...textareaProps}
           ref={ref}
-          name={name}
+          name={name ?? controlProps.id}
           disabled={disabled}
+          required={required}
           className={cn(
             error && "border-destructive",
             inputClassName,
@@ -91,8 +93,11 @@ export function TextareaField<
   control,
   rules,
   error,
+  required,
   ...props
 }: TextareaFieldProps<TFieldValues, TName>) {
+  const isRequired = resolveFieldRequired(required, rules);
+
   if (control && name) {
     return (
       <Controller
@@ -102,6 +107,7 @@ export function TextareaField<
         render={({ field, fieldState }) => (
           <TextareaFieldInner
             {...props}
+            required={isRequired}
             name={field.name}
             value={field.value ?? ""}
             onChange={field.onChange}
@@ -114,5 +120,12 @@ export function TextareaField<
     );
   }
 
-  return <TextareaFieldInner {...props} name={name} error={error} />;
+  return (
+    <TextareaFieldInner
+      {...props}
+      required={isRequired}
+      name={name}
+      error={error}
+    />
+  );
 }
