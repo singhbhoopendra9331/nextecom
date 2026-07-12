@@ -22,6 +22,8 @@ export const PERMISSIONS = {
   "settings:manage": [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   "logs:read": [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   "logs:manage": [UserRole.SUPER_ADMIN],
+  "products:read": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR, UserRole.VIEWER],
+  "products:write": [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -38,6 +40,7 @@ const ROUTE_RULES: { prefix: string; permission: Permission }[] = [
   { prefix: "/admin/forms", permission: "forms:read" },
   { prefix: "/admin/media", permission: "media:read" },
   { prefix: "/admin/comments", permission: "comments:read" },
+  { prefix: "/admin/products", permission: "products:read" },
 ];
 
 export function hasPermission(role: AppUserRole, permission: Permission): boolean {
