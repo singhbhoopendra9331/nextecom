@@ -74,8 +74,10 @@ model Media {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  featuredInPosts Post[]
-  featuredInPages Page[]
+  featuredInPosts    Post[]
+  featuredInPages    Page[]
+  featuredInProducts Product[]
+  productImages      ProductImage[]
 }
 
 enum MediaProvider {
@@ -129,6 +131,11 @@ model Meta {
 
   page   Page?   @relation(fields: [pageId], references: [id])
   pageId String?
+
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String?
+
+  @@index([productId])
 }
 
 enum PostStatus {
@@ -266,4 +273,224 @@ enum CommentStatus {
   APPROVED
   SPAM
   TRASH
+}
+
+enum ProductType {
+  SIMPLE
+  VARIABLE
+  AFFILIATE
+}
+
+enum ProductStatus {
+  DRAFT
+  PENDING
+  PRIVATE
+  PUBLISHED
+}
+
+enum CatalogVisibility {
+  SHOP
+  SEARCH
+  HIDDEN
+}
+
+enum StockStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  ON_BACKORDER
+}
+
+enum BackorderMode {
+  NO
+  NOTIFY
+  YES
+}
+
+model ProductCategory {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model ProductTag {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+
+  @@map("product_tags")
+}
+
+model Brand {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+
+  @@map("brands")
+}
+
+model Product {
+  id String @id @default(uuid())
+
+  // Content
+  title            String
+  slug             String      @unique
+  description      Json        @default("[]")
+  shortDescription String?     @db.Text
+  type             ProductType @default(SIMPLE)
+
+  // Status & visibility
+  status             ProductStatus     @default(DRAFT)
+  catalogVisibility  CatalogVisibility @default(SHOP)
+  isFeatured         Boolean           @default(false)
+  menuOrder          Int               @default(0)
+
+  // Media
+  featuredImage   Media?  @relation(fields: [featuredImageId], references: [id])
+  featuredImageId String?
+  gallery         ProductImage[]
+
+  // Taxonomy
+  categories ProductCategory[]
+  tags       ProductTag[]
+  brand      Brand?              @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  brandId    String?
+
+  // Pricing (simple / affiliate products)
+  regularPrice Decimal? @db.Decimal(12, 2)
+  salePrice    Decimal? @db.Decimal(12, 2)
+  costPrice    Decimal? @db.Decimal(12, 2)
+  taxClass     String?
+  currency     String   @default("USD")
+
+  // Inventory (simple products)
+  sku            String?       @unique
+  manageStock    Boolean       @default(false)
+  quantity       Int           @default(0)
+  stockStatus    StockStatus   @default(IN_STOCK)
+  allowBackorder BackorderMode @default(NO)
+
+  // Shipping
+  weight Decimal? @db.Decimal(10, 3)
+  length Decimal? @db.Decimal(10, 2)
+  width  Decimal? @db.Decimal(10, 2)
+  height Decimal? @db.Decimal(10, 2)
+
+  // Reviews
+  enableReviews Boolean  @default(true)
+  averageRating Decimal? @db.Decimal(3, 2)
+  ratingCount   Int      @default(0)
+
+  // SEO
+  metaTitle       String?
+  metaDescription String? @db.Text
+  canonicalUrl    String?
+
+  // Custom fields (warranty, barcode, etc.)
+  meta Meta[]
+
+  // Variable product variants & attributes
+  variants   ProductVariant[]
+  attributes ProductAttributeAssignment[]
+
+  // Linked products
+  upsells    Product[] @relation("ProductUpsells")
+  upsellOf   Product[] @relation("ProductUpsells")
+  crossSells Product[] @relation("ProductCrossSells")
+  crossSellOf Product[] @relation("ProductCrossSells")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([brandId])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  mediaId   String
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  sortOrder Int     @default(0)
+
+  @@unique([productId, mediaId])
+  @@index([productId])
+  @@map("product_images")
+}
+
+model ProductAttribute {
+  id     String @id @default(uuid())
+  name   String
+  slug   String @unique
+
+  values   ProductAttributeValue[]
+  products ProductAttributeAssignment[]
+
+  @@map("product_attributes")
+}
+
+model ProductAttributeValue {
+  id          String           @id @default(uuid())
+  value       String
+  attributeId String
+  attribute   ProductAttribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  variants ProductVariantAttribute[]
+
+  @@unique([attributeId, value])
+  @@map("product_attribute_values")
+}
+
+model ProductAttributeAssignment {
+  productId   String
+  product     Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeId String
+  attribute   ProductAttribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@id([productId, attributeId])
+  @@map("product_attribute_assignments")
+}
+
+model ProductVariant {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  sku            String?       @unique
+  regularPrice   Decimal?      @db.Decimal(12, 2)
+  salePrice      Decimal?      @db.Decimal(12, 2)
+  costPrice      Decimal?      @db.Decimal(12, 2)
+  manageStock    Boolean       @default(false)
+  quantity       Int           @default(0)
+  stockStatus    StockStatus   @default(IN_STOCK)
+  allowBackorder BackorderMode @default(NO)
+  weight         Decimal?      @db.Decimal(10, 3)
+  length         Decimal?      @db.Decimal(10, 2)
+  width          Decimal?      @db.Decimal(10, 2)
+  height         Decimal?      @db.Decimal(10, 2)
+
+  attributes ProductVariantAttribute[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model ProductVariantAttribute {
+  variantId String
+  variant   ProductVariant        @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  valueId   String
+  value     ProductAttributeValue @relation(fields: [valueId], references: [id], onDelete: Cascade)
+
+  @@id([variantId, valueId])
+  @@map("product_variant_attributes")
 }
