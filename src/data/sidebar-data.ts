@@ -51,11 +51,7 @@ export const data = {
         {
           title: "Orders",
           url: "/admin/orders",
-        },
-        {
-          title: "Customers",
-          url: "/admin/customers",
-        },
+        }, 
         {
           title: "Coupons",
           url: "/admin/coupons",
