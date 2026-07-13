@@ -528,7 +528,7 @@ export default function ProductForm({
             options={tagOptions}
             value={tagIds}
             onChange={setTagIds}
-            emptyMessage="No product tags yet."
+            emptyMessage="No tags yet."
             placeholder="Select tags..."
           />
 

@@ -41,9 +41,11 @@ function userModelHasField(client: PrismaClient, field: string): boolean {
   return fields.some((item) => item.name === field);
 }
 
-function productCategoriesUseSharedCategoryModel(
-  client: PrismaClient
-): boolean {
+function productModelFieldType(
+  client: PrismaClient,
+  model: string,
+  field: string
+): string | undefined {
   const runtimeDataModel = (
     client as unknown as {
       _runtimeDataModel?: {
@@ -52,11 +54,16 @@ function productCategoriesUseSharedCategoryModel(
     }
   )._runtimeDataModel;
 
-  const categoriesField = runtimeDataModel?.models?.Product?.fields?.find(
-    (field) => field.name === "categories"
-  );
+  return runtimeDataModel?.models?.[model]?.fields?.find(
+    (item) => item.name === field
+  )?.type;
+}
 
-  return categoriesField?.type === "Category";
+function productTaxonomiesUseSharedModels(client: PrismaClient): boolean {
+  return (
+    productModelFieldType(client, "Product", "categories") === "Category" &&
+    productModelFieldType(client, "Product", "tags") === "Tag"
+  );
 }
 
 function isValidClient(client: PrismaClient | undefined): boolean {
@@ -66,7 +73,7 @@ function isValidClient(client: PrismaClient | undefined): boolean {
         "object" &&
       userModelHasField(client, "sessionVersion") &&
       userModelHasField(client, "role") &&
-      productCategoriesUseSharedCategoryModel(client)
+      productTaxonomiesUseSharedModels(client)
   );
 }
 

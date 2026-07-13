@@ -13,7 +13,7 @@ export default async function CreateProductPage() {
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
-    prisma.productTag.findMany({
+    prisma.tag.findMany({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
