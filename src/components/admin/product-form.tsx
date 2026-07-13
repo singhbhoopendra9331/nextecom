@@ -463,6 +463,32 @@ export default function ProductForm({
         </div>
 
         <div className="col-span-12 md:col-span-4 space-y-4">
+
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting
+                ? mode === "create"
+                  ? "Saving..."
+                  : "Updating..."
+                : mode === "create"
+                  ? "Save Product"
+                  : "Update Product"}
+            </Button>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Featured image
+            </label>
+            <MediaPicker
+              value={featuredImage}
+              onChange={(media) => {
+                setFeaturedImage(media);
+                setFeaturedImageId(media?.id ?? null);
+              }}
+            />
+          </div>
+
           <SelectField
             label="Product type"
             name="type"
@@ -532,18 +558,7 @@ export default function ProductForm({
             placeholder="Select tags..."
           />
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Featured image
-            </label>
-            <MediaPicker
-              value={featuredImage}
-              onChange={(media) => {
-                setFeaturedImage(media);
-                setFeaturedImageId(media?.id ?? null);
-              }}
-            />
-          </div>
+
 
           <CheckboxField
             label="Enable reviews"
@@ -575,18 +590,6 @@ export default function ProductForm({
               onChange={(event) => setCanonicalUrl(event.target.value)}
               placeholder="https://example.com/products/item"
             />
-          </div>
-
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? mode === "create"
-                  ? "Saving..."
-                  : "Updating..."
-                : mode === "create"
-                  ? "Save Product"
-                  : "Update Product"}
-            </Button>
           </div>
         </div>
       </form>
