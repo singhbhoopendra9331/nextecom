@@ -518,7 +518,7 @@ export default function ProductForm({
             options={categoryOptions}
             value={categoryIds}
             onChange={setCategoryIds}
-            emptyMessage="No product categories yet."
+            emptyMessage="No categories yet."
             placeholder="Select categories..."
           />
 

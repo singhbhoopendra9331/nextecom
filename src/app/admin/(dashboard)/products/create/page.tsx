@@ -9,7 +9,7 @@ export const metadata = createAdminMetadata(
 
 export default async function CreateProductPage() {
   const [categories, tags, brands] = await Promise.all([
-    prisma.productCategory.findMany({
+    prisma.category.findMany({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),

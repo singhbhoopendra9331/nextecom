@@ -43,7 +43,7 @@ export default async function EditProductPage({
         tags: { select: { id: true } },
       },
     }),
-    prisma.productCategory.findMany({
+    prisma.category.findMany({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),

@@ -116,9 +116,10 @@ model Tag {
 }
 
 model Category {
-  id    String @id @default(uuid())
-  name  String @unique
-  posts Post[] @relation("PostCategories")
+  id       String    @id @default(uuid())
+  name     String    @unique
+  posts    Post[]    @relation("PostCategories")
+  products Product[] @relation("ProductCategories")
 }
 
 model Meta {
@@ -306,14 +307,6 @@ enum BackorderMode {
   YES
 }
 
-model ProductCategory {
-  id       String    @id @default(uuid())
-  name     String    @unique
-  slug     String    @unique
-  products Product[]
-
-  @@map("product_categories")
-}
 
 model ProductTag {
   id       String    @id @default(uuid())
@@ -355,7 +348,7 @@ model Product {
   gallery         ProductImage[]
 
   // Taxonomy
-  categories ProductCategory[]
+  categories Category[] @relation("ProductCategories")
   tags       ProductTag[]
   brand      Brand?              @relation(fields: [brandId], references: [id], onDelete: SetNull)
   brandId    String?

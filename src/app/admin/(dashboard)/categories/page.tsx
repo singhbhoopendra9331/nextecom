@@ -6,7 +6,7 @@ import CategoriesPageClient from "./page.client";
 
 export const metadata = createAdminMetadata(
   "Categories",
-  "Manage post categories."
+  "Manage categories for posts and products."
 );
 
 export default async function Page() {
