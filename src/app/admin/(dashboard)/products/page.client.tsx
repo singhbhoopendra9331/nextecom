@@ -21,23 +21,13 @@ import {
   ProductStatus,
   ProductType,
 } from "@/generated/prisma/browser";
+
+import type { ProductListItem } from "@/lib/products/types";
 import { axios } from "@/lib/axios";
 import { toast } from "@/lib/toast";
+import WordLimit from "@/components/word-limit";
 
-type ProductRow = {
-  id: string;
-  title: string;
-  slug: string;
-  type: ProductType;
-  status: ProductStatus;
-  sku: string | null;
-  regularPrice: { toString(): string } | null;
-  stockStatus: string;
-  updatedAt: string | Date;
-  featuredImage?: { url: string } | null;
-  brand?: { name: string } | null;
-  categories?: { name: string }[];
-};
+type ProductRow = ProductListItem;
 
 function statusVariant(status: ProductStatus) {
   switch (status) {
@@ -52,12 +42,12 @@ function statusVariant(status: ProductStatus) {
   }
 }
 
-function formatPrice(value: { toString(): string } | null | undefined) {
+function formatPrice(value: string | null | undefined) {
   if (!value) {
     return "—";
   }
 
-  return value.toString();
+  return value;
 }
 
 function ProductRowActions({
@@ -175,7 +165,7 @@ export default function ProductPageClient({
       accessorKey: "title",
       cell: (row) => (
         <Link className="link" href={`/admin/products/${row.id}`}>
-          {row.title}
+          <WordLimit text={row.title} maxLength={32} />
         </Link>
       ),
     },
@@ -195,7 +185,7 @@ export default function ProductPageClient({
           "—"
         ),
     },
-    { id: "slug", header: "Slug", accessorKey: "slug" },
+    { id: "slug", header: "Slug", accessorKey: "slug", cell: (row) => <WordLimit text={row.slug} maxLength={32} /> },
     {
       id: "type",
       header: "Type",

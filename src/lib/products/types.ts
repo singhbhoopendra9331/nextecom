@@ -1,4 +1,4 @@
-import {
+import type {
   BackorderMode,
   CatalogVisibility,
   ProductStatus,
@@ -45,4 +45,45 @@ export type ProductFormInitialValues = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+};
+
+export type ProductListItem = {
+  id: string;
+  title: string;
+  slug: string;
+  description: unknown;
+  shortDescription: string | null;
+  type: ProductType;
+  status: ProductStatus;
+  catalogVisibility: CatalogVisibility;
+  isFeatured: boolean;
+  menuOrder: number;
+  featuredImageId: string | null;
+  brandId: string | null;
+  regularPrice: string | null;
+  salePrice: string | null;
+  costPrice: string | null;
+  taxClass: string | null;
+  currency: string;
+  sku: string | null;
+  manageStock: boolean;
+  quantity: number;
+  stockStatus: StockStatus;
+  allowBackorder: BackorderMode;
+  weight: string | null;
+  length: string | null;
+  width: string | null;
+  height: string | null;
+  enableReviews: boolean;
+  averageRating: string | null;
+  ratingCount: number;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  canonicalUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+  featuredImage?: { id: string; url: string } | null;
+  brand?: { id: string; name: string } | null;
+  categories?: { id: string; name: string }[];
+  tags?: { id: string; name: string }[];
 };

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/page-title";
 import { createAdminMetadata } from "@/lib/admin/metadata";
+import { serializeProductForClient } from "@/lib/products/serialize-product";
 import { prisma } from "@/lib/prisma";
 
 import ProductPageClient from "./page.client";
@@ -41,7 +42,7 @@ export default async function Page() {
   ]);
 
   const products = {
-    docs,
+    docs: docs.map(serializeProductForClient),
     pagination: {
       page,
       limit,

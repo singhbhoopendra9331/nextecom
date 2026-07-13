@@ -25,3 +25,13 @@ export function decimalToString(
 
   return value.toString();
 }
+
+export function serializeDecimal(
+  value: Prisma.Decimal | { toString(): string } | null | undefined
+): string | null {
+  if (value == null) {
+    return null;
+  }
+
+  return value.toString();
+}
