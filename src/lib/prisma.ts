@@ -6,7 +6,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-/** Use DATABASE_URL; if the value wrongly starts with "DATABASE_URL=", strip it. */
+/** @description Gets the database connection string from environment variables. */
 function getConnectionString(): string {
   const raw = getEnv("DATABASE_URL");
   if (raw.startsWith("DATABASE_URL=")) {
@@ -16,6 +16,7 @@ function getConnectionString(): string {
   return raw.trim();
 }
 
+/** @description Creates a new Prisma client instance. */
 function createPrismaClient() {
   const connectionString = getConnectionString();
   const adapter = new PrismaPg({
@@ -28,6 +29,7 @@ function createPrismaClient() {
   });
 }
 
+/** @description Checks if the User model has a specific field. */
 function userModelHasField(client: PrismaClient, field: string): boolean {
   const runtimeDataModel = (
     client as unknown as {
@@ -59,6 +61,7 @@ function productModelFieldType(
   )?.type;
 }
 
+/** @description Checks if the Product model uses shared Category and Tag models. */
 function productTaxonomiesUseSharedModels(client: PrismaClient): boolean {
   return (
     productModelFieldType(client, "Product", "categories") === "Category" &&
@@ -66,6 +69,7 @@ function productTaxonomiesUseSharedModels(client: PrismaClient): boolean {
   );
 }
 
+/** @description Checks if the provided Prisma client is valid. */
 function isValidClient(client: PrismaClient | undefined): boolean {
   return Boolean(
     client &&
@@ -94,7 +98,7 @@ function getPrisma(): PrismaClient {
   return client;
 }
 
-/** Lazy singleton: created on first use (e.g. prisma.post) so Next.js API routes get a valid client. */
+/** @description Lazy singleton: created on first use (e.g. prisma.post) so Next.js API routes get a valid client. */
 export const prisma = new Proxy({} as PrismaClient, {
   get(_, prop) {
     const client = getPrisma();
